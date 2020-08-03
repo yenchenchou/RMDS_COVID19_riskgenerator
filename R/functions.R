@@ -28,9 +28,9 @@ get_daily_visits <- function (x) {
   temp_daily
 }
 
-#' Get hourly visits
+#' @title Get hourly visits
 #'
-#' This function allows you to get information related to hourly visits from SafeGraph weekly patterns dataset
+#' @description This function allows you to get information related to hourly visits from SafeGraph weekly patterns dataset
 #' @param x SafeGraph weekly patterns dataset
 #' @return A dataframe containing hourly visits for each weekday
 #' @export
@@ -53,12 +53,12 @@ get_hourly_visits <- function(x) {
   temp_hourly
 }
 
-#' Process daily visits data
+#' @title Process daily visits data
 #'
-#' Process all three datasets to get daily visits data by calling function get_daily_visits, bind them together, and take averages
-#' @param file_1 SafeGraph weekly patterns dataset (week 1)
-#' @param file_2 SafeGraph weekly patterns dataset (week 2)
-#' @param file_3 SafeGraph weekly patterns dataset (week 3)
+#' @description Process all three datasets to get daily visits data by calling function get_daily_visits, bind them together, and take averages
+#' @param file_1 SafeGraph weekly patterns dataset (week 1, use read_csv to load)
+#' @param file_2 SafeGraph weekly patterns dataset (week 2, use read_csv to load)
+#' @param file_3 SafeGraph weekly patterns dataset (week 3, use read_csv to load)
 #' @return A dataframe containing average daily visits and average median dwell time for each place of interest (POI)
 #' @export
 daily_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3) {
@@ -73,12 +73,13 @@ daily_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3) 
   temp_daily_processed
 }
 
-#' Process hourly visits data
+
+#' @title Process hourly visits data
 #'
-#' Process all three datasets to get hourly visits data by calling function get_hourly_visits, bind them together, and take averages
-#' @param file_1 SafeGraph weekly patterns dataset (week 1)
-#' @param file_2 SafeGraph weekly patterns dataset (week 2)
-#' @param file_3 SafeGraph weekly patterns dataset (week 3)
+#' @description Process all three datasets to get hourly visits data by calling function get_hourly_visits, bind them together, and take averages
+#' @param file_1 SafeGraph weekly patterns dataset (week 1, use read_csv to load)
+#' @param file_2 SafeGraph weekly patterns dataset (week 2, use read_csv to load)
+#' @param file_3 SafeGraph weekly patterns dataset (week 3, use read_csv to load)
 #' @return A dataframe containing average cv and average peak hourly visits for each place of interest (POI)
 #' @export
 hourly_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3) {
@@ -238,9 +239,9 @@ get_gov_data_rpi <- function(chromever, path = './Data'){
 }
 
 
-#' Calculate the risk score
+#' @title Calculate the risk score
 #'
-#' Calculate the risk score for each POI
+#' @description Calculate the risk score for each POI
 #' @param poi SafeGraph POI dataset, plus city/community and infection rate of each POI (the output of function calculate_infection_rate)
 #' @param open_hours The dataset containing open hours from Monday to Sunday for each POI
 #' @param daily Processed daily visits dataset, output of the function "daily_process"
@@ -322,12 +323,12 @@ calculate_risk_score <- function(poi = poi,
   risk
 }
 
-#' Calculate the risk score, an integrated solution
+#' @title Calculate the risk score, an integrated solution
 #'
-#' An integrated solution, combining all functions in one step to calculate the risk score for each POI
-#' @param file_1 SafeGraph weekly patterns dataset (week 1)
-#' @param file_2 SafeGraph weekly patterns dataset (week 2)
-#' @param file_3 SafeGraph weekly patterns dataset (week 3)
+#' @description An integrated solution, combining all functions in one step to calculate the risk score for each POI
+#' @param file_1 SafeGraph weekly patterns dataset (week 1, use read_csv to load)
+#' @param file_2 SafeGraph weekly patterns dataset (week 2, use read_csv to load)
+#' @param file_3 SafeGraph weekly patterns dataset (week 3, use read_csv to load)
 #' @param poi SafeGraph POI dataset, plus city/community and infection rate of each POI (the output of function calculate_infection_rate)
 #' @param open_hours The dataset containing open hours from Monday to Sunday for each POI
 #' @param case_death_table The community case and death table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
