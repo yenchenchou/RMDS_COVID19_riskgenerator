@@ -100,21 +100,24 @@ hourly_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3)
   temp_hourly_processed
 }
 
-#' Calculate the infection rate
-#'
-#' Calculate infection rate for each community as well as the entire LA city, and then match them with each POI
+
+#' @title Calculate the Infection Rate
+#' 
+#' @description Calculate infection rate for each community, and then match them with each POI
 #' @param poi_data SafeGraph POI dataset, plus city/community of each POI
 #' @param case_death_table The community case and death table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
 #' @param testing_table The community testing table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
 #' @return A dataframe with columns in POI dataset as well as corresponding infection rate for each POI
+#' @import tidyverse
+#' @importFrom sjmisc str_detect
 #' @export
-calculate_infection_rate <- function(poi_data = poi,
+calculate_infection_rate <- function(poi_data = poi, 
                                      case_death_table = case_death_table,
                                      testing_table = testing_table) {
   
   # Calculate infection rate for each community
-  rate_original <- case_death_table %>%
-    left_join(testing_table, by = c("geo_merge"))
+  rate_original <- case_death_table %>% 
+    left_join(testing_table, by = c("geo_merge")) 
   
   rate <- rate_original %>%
     mutate(infection_rate = (cases_final-deaths_final)/(persons_tested_final-deaths_final)) %>%
@@ -129,29 +132,111 @@ calculate_infection_rate <- function(poi_data = poi,
     mutate(infection_rate = (cases_final-deaths_final)/(persons_tested_final-deaths_final))
   rate_LA <- rate_LA$infection_rate
   
-  # Add infection rate for each poi
-  poi_data$infection_rate <- 0
+  # change place names to lowercase for matching
+  # 'angeles national forest','del rey','florence-firestone','harbor gateway' 
+  # repeat in Los Angeles and Unincorporated . Treat them in Los Angeles
+  poi_data <- poi_data %>% mutate('city_lower' = tolower(poi_data$city),
+                                  'community_lower' = tolower(poi_data$community))
+  rate <- rate %>% mutate('geo_merge_lower' = tolower(rate$geo_merge)) %>% 
+    separate(.,col = geo_merge_lower,
+             c('city_lower','community_lower'),sep=" - ", remove = FALSE) %>% 
+    filter(!(community_lower %in% c('angeles national forest', 
+                                    'del rey', 
+                                    'florence-firestone',
+                                    'harbor gateway') & 
+               city_lower == 'unincorporated'))
   
-  for (i in 1:nrow(poi_data)) {
-    city=poi_data$city[i]
-    comm=poi_data$community[i]
-    for (j in 1:nrow(rate)){
-      if(str_contains(rate$geo_merge[j], comm,ignore.case = TRUE)==TRUE) {
-        poi_data$infection_rate[i]=rate$infection_rate[j]
-      }
-      else if(str_contains(rate$geo_merge[j], city,ignore.case = TRUE)==TRUE & city!="Los Angeles") {
-        poi_data$infection_rate[i]=rate$infection_rate[j]
-      }
-    }
-  }
+  # match infection_rate in rate to poi_data 
+  # first match by community names
+  poi_data <-  poi_data %>% left_join(.,
+                                      subset(rate, select = c(infection_rate,community_lower)), 
+                                      by = 'community_lower') 
+  # then match by city names, los angeles is removed becuase it repeats in rate
+  poi_data_other <- poi_data %>% filter(city_lower != "los angeles" &
+                                          is.na(poi_data$infection_rate)) %>% 
+    select(-infection_rate) %>% 
+    left_join(.,
+              subset(rate, select = c(infection_rate,city_lower)), 
+              by = 'city_lower')
+  # merge two matched table
+  poi_data <- poi_data %>% 
+    filter(!is.na(poi_data$infection_rate)|
+             city_lower == "los angeles") %>% 
+    bind_rows(., poi_data_other) %>% 
+    select(-c(city_lower,community_lower))
   
   # Impute rest pois (those that can't find matches) with the infection rate of LA city
   poi_data <- poi_data %>%
-    mutate(infection_rate = ifelse(infection_rate == 0, rate_LA, infection_rate))
+    mutate(infection_rate = ifelse(is.na(infection_rate), rate_LA, infection_rate))
   
   # return the poi dataset with infection rate for each place
   poi_data
 }
+
+
+#' @title get Government Case/Death and Test Data
+#' 
+#' @description download and save case/death and test cvs from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+#' To check chrome version: binman::list_versions("chromedriver")
+#' @import RSelenium
+#' @param chromever chrome version
+#' @param path save path, default is in Data folder
+#' @export
+# library(RSelenium)
+get_gov_data_rpi <- function(chromever, path = './Data'){
+  
+  rd <- rsDriver(browser = c("chrome"),chromever = chromever)
+  remDr <- rd$client
+  
+  gov_url <- 'http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/'
+  # navigate to main page
+  remDr$navigate(gov_url)
+  Sys.sleep(3) # wait until the page stop  loading
+  
+  frames <- remDr$findElements("css", "iframe")
+  remDr$switchToFrame(frames[[1]])
+  
+  # find the case_death box and click
+  webElem_side1 <- remDr$findElement(using = 'xpath',
+                                     value = "//html/body/div/aside/section/ul/li[4]")
+  webElem_side1$clickElement()
+  Sys.sleep(8) # wait until the page stop  loading
+  webElem_side1$clickElement()
+  
+  # find download box
+  webElem_table1 <- remDr$findElement(using = 'xpath',
+                                      value = "//html/body/div/div/section/div/div[@class ='tab-pane active']/div/div/div/div[@class = 'box-body']/a")
+  
+  # get link
+  url_table1 <- webElem_table1$getElementAttribute('href')
+  # download case_death file
+  download.file(url_table1[[1]],
+                paste0(path,'/LA_County_Covid19_CSA_case_death_table.csv'))
+  
+  
+  # find the testing box and click
+  webElem_side2 <- remDr$findElement(using = 'xpath',
+                                     value = "//html/body/div/aside/section/ul/li[5]")
+  webElem_side2$clickElement()
+  Sys.sleep(3) # wait until the page stop  loading
+  webElem_side1$clickElement()
+  
+  # find download box
+  webElem_table2 <- remDr$findElement(using = 'xpath',
+                                      value = "//html/body/div/div/section/div/div[@class ='tab-pane active']/div/div/div/div[@class = 'box-body']/a")
+  
+  
+  # get link
+  url_table2 <- webElem_table2$getElementAttribute('href')
+  # download case_death file
+  download.file(url_table2[[1]], 
+                paste0(path,'/LA_County_Covid19_CSA_testing_table.csv'))
+  remDr$closeServer()
+  remDr$close()
+  rd$server$stop()
+  return(print(paste0("Success. Files are stored.")))
+}
+
 
 #' Calculate the risk score
 #'
