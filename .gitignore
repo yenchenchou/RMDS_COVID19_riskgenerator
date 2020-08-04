@@ -1,0 +1,3 @@
+/data/external/*
+/data/processed/open_hours.csv
+/data/processed/poi_area_square_feet.csv

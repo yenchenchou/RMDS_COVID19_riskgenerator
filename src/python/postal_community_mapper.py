@@ -144,16 +144,16 @@ class ZipCommunityMapper(object):
 
     def save_json(self):
         with open("data/internal/zipcode_mapper.json", "w") as file:
-            json.dump(map_table, file)
+            json.dump(self.final_dict, file)
         print("Data Saved!")
 
 
-if __name__ == "__main__":
-    print("Starting getting data from .laalmanac.com...")
-    url = "http://www.laalmanac.com/communications/cm02_communities.php"
-    zip_community_mapper = ZipCommunityMapper()
-    zip_community_mapper._get_postal_community(url)
-    print("Starting getting data mapper...")
-    map_table = zip_community_mapper.get_mapper(url)
-    zip_community_mapper.save_json()
-    print("Complete!")
+# if __name__ == "__main__":
+#     print("Starting getting data from .laalmanac.com...")
+#     url = "http://www.laalmanac.com/communications/cm02_communities.php"
+#     zip_community_mapper = ZipCommunityMapper()
+#     zip_community_mapper._get_postal_community(url)
+#     print("Starting getting data mapper...")
+#     map_table = zip_community_mapper.get_mapper(url)
+#     zip_community_mapper.save_json()
+#     print("Complete!")
