@@ -1,0 +1,3 @@
+/data/external/*
+/data/processed/RMDS_open_hours.csv
+/data/processed/RMDS_poi_area_square_feet.csv
