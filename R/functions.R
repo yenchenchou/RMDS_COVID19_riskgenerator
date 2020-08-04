@@ -101,10 +101,54 @@ hourly_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3)
   temp_hourly_processed
 }
 
+#' @title Clean Government Case/Death and Test Data
+#' 
+#' @description  convert geo_merge to standard names and combine communities repeat as Unincorporated 
+#' @param gov_table government case/death or test data downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+#' @return cleaned data
+#' @import tidyverse
+#' @export
+clean_gov_data <- function(gov_table){
+  gov_table <- gov_table %>% 
+    mutate(geo_merge = gsub(
+      "(^City of |^Los Angeles - |^Unincorporated - )", "", .$geo_merge)
+    ) %>% 
+    group_by(geo_merge) %>% 
+    summarise_each(sum)
+  return(gov_table)
+}
+
 
 #' @title Calculate the Infection Rate
 #' 
-#' @description Calculate infection rate for each community, and then match them with each POI
+#' @description Calculate infection rate for each community or the whole region
+#' @param rate_original cleaned combined government data downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/ and cleand by clean_gov_data
+#' @return A dataframe rate for each community, or a rate for the whole region
+#' @import tidyverse
+#' @export
+calculate_infection_rate <- function(rate_original = rate_original,
+                                     each = TRUE) {
+  if (each){
+    rate <- rate_original %>%
+      mutate(infection_rate = 
+               (cases_final-deaths_final)/(persons_tested_final-deaths_final)) %>%
+      select(geo_merge, infection_rate)
+  }
+  else{
+    rate <- rate_original %>%
+      summarise(cases_final = sum(cases_final),
+                deaths_final = sum(deaths_final),
+                persons_tested_final = sum(persons_tested_final)) %>%
+      mutate(infection_rate = (cases_final-deaths_final)/(persons_tested_final-deaths_final))
+    rate <- rate$infection_rate
+  }
+  return(rate)
+}
+
+
+#' @title Match the Infection Rate with POI
+#' 
+#' @description match infection rate with each POI
 #' @param poi_data SafeGraph POI dataset, plus city/community of each POI
 #' @param case_death_table The community case and death table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
 #' @param testing_table The community testing table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
@@ -112,70 +156,66 @@ hourly_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3)
 #' @import tidyverse
 #' @importFrom sjmisc str_detect
 #' @export
-calculate_infection_rate <- function(poi_data = poi, 
-                                     case_death_table = case_death_table,
-                                     testing_table = testing_table) {
+match_infection_rate <- function(poi_data = poi, 
+                                 case_death_table = case_death_table,
+                                 testing_table = testing_table) {
+  # find communities in Log Angeles for future imputaion use
+  la_community <- case_death_table %>% 
+    select(geo_merge) %>% 
+    filter(str_detect(geo_merge, "^Los Angeles")) %>% 
+    mutate(geo_merge = gsub(
+      "(^City of |^Los Angeles - |^Unincorporated - )", "", .$geo_merge)
+    )
+  la_community <- la_community$geo_merge
+  
+  # combine communities repeat as Unincorporated. 
+  # convert geo_merge to standard names
+  case_death_table <- clean_gov_data(case_death_table)
+  testing_table <- clean_gov_data(testing_table)
+  # join case/death and test tables 
+  rate_original <- testing_table %>% 
+    left_join(case_death_table, by = c("geo_merge")) 
   
   # Calculate infection rate for each community
-  rate_original <- case_death_table %>% 
-    left_join(testing_table, by = c("geo_merge")) 
-  
-  rate <- rate_original %>%
-    mutate(infection_rate = (cases_final-deaths_final)/(persons_tested_final-deaths_final)) %>%
-    select(geo_merge, infection_rate)
-  
+  rate <- calculate_infection_rate(rate_original, each = TRUE)
+  # Calculate infection rate for the entire LA county
+  rate_LA_county <- calculate_infection_rate(rate_original, each = FALSE)
   # Calculate infection rate for the entire LA city
-  rate_LA <- rate_original %>%
-    filter(str_detect(geo_merge, "^Los Angeles")) %>%
-    summarise(cases_final = sum(cases_final),
-              deaths_final = sum(deaths_final),
-              persons_tested_final = sum(persons_tested_final)) %>%
-    mutate(infection_rate = (cases_final-deaths_final)/(persons_tested_final-deaths_final))
-  rate_LA <- rate_LA$infection_rate
-  
-  # change place names to lowercase for matching
-  # 'angeles national forest','del rey','florence-firestone','harbor gateway' 
-  # repeat in Los Angeles and Unincorporated . Treat them in Los Angeles
-  poi_data <- poi_data %>% mutate('city_lower' = tolower(poi_data$city),
-                                  'community_lower' = tolower(poi_data$community))
-  rate <- rate %>% mutate('geo_merge_lower' = tolower(rate$geo_merge)) %>% 
-    separate(.,col = geo_merge_lower,
-             c('city_lower','community_lower'),sep=" - ", remove = FALSE) %>% 
-    filter(!(community_lower %in% c('angeles national forest', 
-                                    'del rey', 
-                                    'florence-firestone',
-                                    'harbor gateway') & 
-               city_lower == 'unincorporated'))
+  rate_LA_city <- rate_original %>%
+    filter(geo_merge %in% la_community)
+  rate_LA_city <- calculate_infection_rate(rate_LA_city, each = FALSE)
   
   # match infection_rate in rate to poi_data 
   # first match by community names
-  poi_data <-  poi_data %>% left_join(.,
-                                      subset(rate, select = c(infection_rate,community_lower)), 
-                                      by = 'community_lower') 
+  poi_data <-  poi_data %>% left_join(., rate, by = c("community" = "geo_merge"))
   # then match by city names, los angeles is removed becuase it repeats in rate
-  poi_data_other <- poi_data %>% filter(city_lower != "los angeles" &
-                                          is.na(poi_data$infection_rate)) %>% 
+  poi_data_other <- poi_data %>% 
+    filter(city != "Los Angeles" &
+             is.na(poi_data$infection_rate)) %>% 
     select(-infection_rate) %>% 
-    left_join(.,
-              subset(rate, select = c(infection_rate,city_lower)), 
-              by = 'city_lower')
+    left_join(., rate, by = c("city" = "geo_merge"))
   # merge two matched table
   poi_data <- poi_data %>% 
     filter(!is.na(poi_data$infection_rate)|
-             city_lower == "los angeles") %>% 
-    bind_rows(., poi_data_other) %>% 
-    select(-c(city_lower,community_lower))
+             city == "Los Angeles") %>% 
+    bind_rows(., poi_data_other) 
   
-  # Impute rest pois (those that can't find matches) with the infection rate of LA city
-  poi_data <- poi_data %>%
-    mutate(infection_rate = ifelse(is.na(infection_rate), rate_LA, infection_rate))
+  # Impute rest pois (those that can't find matches) in LA city with the infection rate of LA city
+  indexs_la_city <- which(is.na(poi_data$infection_rate) & 
+                            poi_data$city == "Los Angeles")
+  poi_data$infection_rate[indexs_la_city] <- rate_LA_city 
+  
+  # Impute rest pois (those that can't find matches) outside LA city with the infection rate of LA county
+  indexs_la_county <- which(is.na(poi_data$infection_rate) & 
+                              poi_data$city != "Los Angeles")
+  poi_data$infection_rate[indexs_la_county] <- rate_LA_county
   
   # return the poi dataset with infection rate for each place
-  poi_data
+  return(poi_data)
 }
 
 
-#' @title get Government Case/Death and Test Data
+#' @title Get Government Case/Death and Test Data
 #' 
 #' @description download and save case/death and test cvs from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
 #' To check chrome version: binman::list_versions("chromedriver")
@@ -343,7 +383,7 @@ main <- function(file_1, file_2, file_3,
   print("Processing hourly visits data")
   hourly <- hourly_process(file_1, file_2, file_3)
   print("Calculating infection rate and matching each POI with corresponding infection rate")
-  poi_extended <- calculate_infection_rate(poi, case_death_table, testing_table)
+  poi_extended <- match_infection_rate(poi, case_death_table, testing_table)
   print("Calculating risk scores")
   risk <- calculate_risk_score(poi_extended, open_hours, daily, hourly)
   print("Completed")
