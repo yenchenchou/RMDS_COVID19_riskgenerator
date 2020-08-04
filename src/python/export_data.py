@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print("Start getting poi area data...")
     area_getter = POIArea()
     df_area = area_getter.get_area()
-    df_area.to_csv("data/processed/poi_area_square_feet.csv") # csv.gz
+    df_area.to_csv("data/processed/RMDS_poi_area_square_feet.csv") # csv.gz
     print("Complete saving poi area data!")
 
 
@@ -56,6 +56,6 @@ if __name__ == "__main__":
     open_hours.read_data()
     print("getting hour data, it may take up to 2 mins...")
     open_hours_df = open_hours.get_open_hours_df()
-    open_hours_df.to_csv("data/processed/open_hours.csv", index = False)
+    open_hours_df.to_csv("data/processed/RMDS_open_hours.csv", index = False)
     print("Complete saving open hours data!")
 

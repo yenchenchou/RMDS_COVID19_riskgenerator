@@ -143,7 +143,7 @@ class ZipCommunityMapper(object):
         return self.final_dict
 
     def save_json(self):
-        with open("data/internal/zipcode_mapper.json", "w") as file:
+        with open("data/internal/RMDS_zipcode_mapper.json", "w") as file:
             json.dump(self.final_dict, file)
         print("Data Saved!")
 
