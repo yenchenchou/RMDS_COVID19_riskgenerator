@@ -28,8 +28,10 @@ Go to the folder where you clone the files:
     ```Python
     python src/python/export_data.py
     ```
+        *  You will get RMDS_open_hours.csv, RMDS_poi_area_square_feet.csv, RMDS_poi.csv, and RMDS_zipcode_mapper.json
     * Get the risk score
     ```R
     R CMD BATCH function.R
     ```
+        * You will get risk score
 
