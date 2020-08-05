@@ -45,8 +45,7 @@ if __name__ == "__main__":
 
 
     print("Start getting open hours data...")
-    FILE_PATH = "data/external/Core-USA-July2020-Release"\
-        "-CORE_POI-2020_06-2020-07-13/core_poi-part1.csv.gz"
+    FILE_PATH = "data/processed/RMDS_poi.csv"
     open_hours = OpenHour(FILE_PATH)
     open_hours.read_data()
     print("getting hour data, it may take up to 2 mins...")

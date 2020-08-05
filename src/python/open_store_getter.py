@@ -35,9 +35,8 @@ class OpenHour:
         """
         self.df = pd.read_csv(
             self.file_path,
-            compression="gzip",
-            usecols=['safegraph_place_id', 'open_hours', "region"])
-        self.df = self.df[self.df["region"] == "CA"].copy()
+            usecols=['safegraph_place_id', 'open_hours', "community"])
+        self.df = self.df[self.df["community"].notnull()]
         self.df = self.df[["safegraph_place_id", "open_hours"]].copy()
         self.df = self.df[self.df["open_hours"].notnull()].copy()
 

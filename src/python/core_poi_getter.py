@@ -38,6 +38,7 @@ class POI:
         self.df = self.df[["safegraph_place_id",
                            "latitude",
                            "longitude",
+                           "open_hours",
                            "city",
                            "postal_code"]]
         self.df["community"] = self.df["postal_code"].apply(lambda x: self.mapping(x))
