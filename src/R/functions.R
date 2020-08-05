@@ -15,17 +15,18 @@ library(devtools)
 #' @export
 get_daily_visits <- function (x) {
   # select daily visit data
-  temp_daily <- x %>%
+  x <- x %>%
     # select columns related to daily visits
-    select(safegraph_place_id, date_range_start, date_range_end, visits_by_day, median_dwell) %>%
+    select(safegraph_place_id, visits_by_day, median_dwell) 
+  x <- x %>%
     # Parse visits_by_day [json] into columns in dataframe
     # Each represents a weekday: from Monday to Sunday
     mutate(visits_by_day = str_extract(visits_by_day, "([0-9]+,)+[0-9]")) %>%
     separate(visits_by_day, into = c("Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"),
              sep = ",", convert = T) %>%
     # Gather: to make the data tidy
-    gather(key = "weekday", value = "visits_by_day", -safegraph_place_id, -date_range_start, -date_range_end, -median_dwell)
-  temp_daily
+    gather(key = "weekday", value = "visits_by_day", -safegraph_place_id, -median_dwell)
+  x
 }
 
 #' @title Get hourly visits
@@ -35,9 +36,10 @@ get_daily_visits <- function (x) {
 #' @return A dataframe containing hourly visits for each weekday
 #' @export
 get_hourly_visits <- function(x) {
-  temp_hourly <- x %>%
+  x <- x %>%
     # select columns related to hourly visits
-    select(safegraph_place_id, date_range_start, date_range_end, visits_by_each_hour) %>%
+    select(safegraph_place_id, date_range_start, visits_by_each_hour)
+  x <- x %>%
     # Parse visits_by_each_hour [json] into columns in dataframe
     mutate(visits_by_each_hour = str_extract(visits_by_each_hour, "([0-9]+,)+[0-9]")) %>%
     separate(visits_by_each_hour, into = c(str_c("Mon", 1:24, sep = "_"),
@@ -48,9 +50,9 @@ get_hourly_visits <- function(x) {
                                            str_c("Sat", 1:24, sep = "_"),
                                            str_c("Sun", 1:24, sep = "_")), sep = ",", convert = T) %>%
     # Gather: to make the data tidy
-    gather(key = "weekday", value = "visits_by_each_hour", -safegraph_place_id, -date_range_start, -date_range_end) %>%
+    gather(key = "weekday", value = "visits_by_each_hour", -safegraph_place_id, -date_range_start) %>%
     separate(weekday, into = c("weekday", "hour"), sep = "_", convert = T)
-  temp_hourly
+  x
 }
 
 #' @title Process daily visits data
@@ -62,6 +64,27 @@ get_hourly_visits <- function(x) {
 #' @return A dataframe containing average daily visits and average median dwell time for each place of interest (POI)
 #' @export
 daily_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3) {
+  temp_daily_processed <- get_daily_visits(file_1) %>%
+    # bind three datasets together
+    rbind(get_daily_visits(file_2)) %>%
+    rbind(get_daily_visits(file_3)) %>%
+    # take average of last three weeks
+    group_by(safegraph_place_id, weekday) %>%
+    summarize(avg_visits = mean(visits_by_day, na.rm = T),
+              avg_median_dwell = mean(median_dwell, na.rm = T))
+  temp_daily_processed
+}
+
+
+#' @title Process daily visits data
+#'
+#' @description Process all three datasets to get daily visits data by calling function get_daily_visits, bind them together, and take averages
+#' @param file_1 SafeGraph weekly patterns dataset (week 1, use read_csv to load)
+#' @param file_2 SafeGraph weekly patterns dataset (week 2, use read_csv to load)
+#' @param file_3 SafeGraph weekly patterns dataset (week 3, use read_csv to load)
+#' @return A dataframe containing average daily visits and average median dwell time for each place of interest (POI)
+#' @export
+daily_process_new <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3) {
   temp_daily_processed <- get_daily_visits(file_1) %>%
     # bind three datasets together
     rbind(get_daily_visits(file_2)) %>%
@@ -97,7 +120,8 @@ hourly_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3)
     # take average of last three weeks
     group_by(safegraph_place_id, weekday) %>%
     summarise(cv = mean(cv),
-              peak = mean(peak))
+              peak = mean(peak)) %>% 
+    ungroup()
   temp_hourly_processed
 }
 
@@ -114,7 +138,8 @@ clean_gov_data <- function(gov_table){
       "(^City of |^Los Angeles - |^Unincorporated - )", "", .$geo_merge)
     ) %>% 
     group_by(geo_merge) %>% 
-    summarise_each(sum)
+    summarise(across(.cols = everything(),sum)) %>% 
+    ungroup()
   return(gov_table)
 }
 
@@ -283,12 +308,14 @@ get_gov_data_rpi <- function(chromever, path = './Data'){
 #'
 #' @description Calculate the risk score for each POI
 #' @param poi SafeGraph POI dataset, plus city/community and infection rate of each POI (the output of function calculate_infection_rate)
+#' @param poi_area SafeGraph POI area dataset
 #' @param open_hours The dataset containing open hours from Monday to Sunday for each POI
 #' @param daily Processed daily visits dataset, output of the function "daily_process"
 #' @param hourly Processed houly visits dataset, output of the function "hourly_process"
 #' @return The final risk score dataframe
 #' @export
 calculate_risk_score <- function(poi = poi,
+                                 poi_area = poi_area,
                                  open_hours = open_hours,
                                  daily = daily,
                                  hourly = hourly) {
@@ -296,8 +323,11 @@ calculate_risk_score <- function(poi = poi,
   # Joining the data
   risk <- open_hours %>%
     # Join the poi data
-    left_join(poi %>% select(safegraph_place_id, location_name, top_category, latitude, longitude, street_address, city, community, postal_code, area_square_feet, infection_rate),
-              by = c("safegraph_place_id")) %>%
+    # left_join(poi %>% select(safegraph_place_id, location_name, top_category, latitude, longitude, street_address, city, community, postal_code, area_square_feet, infection_rate),
+    #           by = c("safegraph_place_id")) %>%
+    left_join(poi, by = c("safegraph_place_id")) %>% 
+    # join poi area_square_feet data
+    left_join(poi_area, by = c("safegraph_place_id")) %>% 
     # Join daily visits data
     # For those with open_hours = 0 but still have visitis, adjust the open_hours to median level
     left_join(daily, by = c("safegraph_place_id", "weekday")) %>%
@@ -310,25 +340,15 @@ calculate_risk_score <- function(poi = poi,
   
   # Calculate the expected number of people encountered when coming to a place
   risk <- risk %>%
-    mutate(interval = ifelse(avg_visits == 0, NaN, open_hours*60 / avg_visits),
+    mutate(interval = ifelse(avg_visits == 0, NA, open_hours*60 / avg_visits),
            round_visit = ceiling(avg_visits),
            encounter_max = ifelse(avg_visits == 0, 0,
                                   ceiling(avg_median_dwell / interval)),
            encounter = ifelse(round_visit > encounter_max, encounter_max, round_visit)) %>%
-    select(-round_visit, -encounter_max)
-  
-  # Calculate the probability
-  # that at least one person that you expect to encounter is/are infectious
-  prob <- double()
-  for (i in 1:nrow(risk)) {
-    size <- risk$encounter[i]
-    p <- risk$infection_rate[i]
-    prob[i] <- ifelse(size == 0, 0,
-                      sum(dbinom(1:size, size, p)))
-  }
-  
-  # Add to the risk table
-  risk$prob <- prob
+    select(-round_visit, -encounter_max) %>% 
+    # Calculate the probability
+    # that at least one person that you expect to encounter is/are infectious
+    mutate(prob = ifelse(encounter == 0, 0,1-(1-infection_rate)**encounter))
   
   # Calculate risk scores
   risk <- risk %>%
@@ -356,8 +376,7 @@ calculate_risk_score <- function(poi = poi,
                                       ifelse(risk_score <= 0.5, 1,
                                              ifelse(risk_score <= 0.9, 2, 3)))),
            risk_score = ifelse(is.na(risk_score), -1, risk_score),
-           update_date = Sys.Date()) %>%
-    select(safegraph_place_id, location_name, top_category, latitude, longitude, street_address, postal_code, city, community, everything())
+           update_date = Sys.Date())
   
   # Return the final risk scores
   risk
@@ -369,14 +388,15 @@ calculate_risk_score <- function(poi = poi,
 #' @param file_1 SafeGraph weekly patterns dataset (week 1, use read_csv to load)
 #' @param file_2 SafeGraph weekly patterns dataset (week 2, use read_csv to load)
 #' @param file_3 SafeGraph weekly patterns dataset (week 3, use read_csv to load)
-#' @param poi SafeGraph POI dataset, plus city/community and infection rate of each POI (the output of function calculate_infection_rate)
+#' @param poi SafeGraph POI dataset
+#' @param poi_area SafeGraph POI area dataset
 #' @param open_hours The dataset containing open hours from Monday to Sunday for each POI
 #' @param case_death_table The community case and death table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
 #' @param testing_table The community testing table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
 #' @return The final risk score dataframe
 #' @export
 main <- function(file_1, file_2, file_3,
-                 poi, open_hours,
+                 poi, poi_area, open_hours,
                  case_death_table, testing_table) {
   print("Processing daily visits data")
   daily <- daily_process(file_1, file_2, file_3)
@@ -385,9 +405,11 @@ main <- function(file_1, file_2, file_3,
   print("Calculating infection rate and matching each POI with corresponding infection rate")
   poi_extended <- match_infection_rate(poi, case_death_table, testing_table)
   print("Calculating risk scores")
-  risk <- calculate_risk_score(poi_extended, open_hours, daily, hourly)
+  risk <- calculate_risk_score(poi_extended, poi_area, open_hours, daily, hourly)
   print("Completed")
   return(risk)
 }
 
 #devtools::document()
+
+
