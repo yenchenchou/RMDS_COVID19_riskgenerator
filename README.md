@@ -6,7 +6,7 @@
  1. Clone the whole repository from GitHub
 
  2. Pre-Download data:
- A total of 7 files need to download (Don't worry, we have example data for you!). Store all the data into `/data/external/` folder
+ A total of 7 files need to download (Don't worry, we have example data for you in the future!). Store all the data into `/data/external/` folder
     * Data from SafeGraph.com: Need to apply an account
         * **Consecutive 3 weeks of user patterns**: Weekly Places Patterns (1-3)
         ![Weekly Places Patterns](data/internal/image/weekly.png)
@@ -21,7 +21,9 @@
         ![test_death](data/internal/image/test_death.png)
 
 3. Check necessary dependencies in `requirements.txt` 
-
+```
+pip install -r requirements.txt
+```
 4. Run the script:
 Go to the folder where you clone the files:
     * Get processed data
