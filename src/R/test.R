@@ -5,90 +5,46 @@ library(stringr)
 library(tidyr)
 library(sjmisc)
 library(roxygen2)
-library(devtools)
+# load data ---------------------------------------------------------------
+days <- c('0624','0701','0708')
 
+poi <- read_csv('../../data/processed/RMDS_poi.csv')
+poi_area <- read_csv('../../data/processed/RMDS_poi_area_square_feet.csv')
+open_hours <- read_csv('../../data/processed/RMDS_open_hours.csv')
+case_death_table <- read_csv('../../data/external/LA_County_Covid19_CSA_case_death_table.csv')
+testing_table <- read_csv('../../data/external/LA_County_Covid19_CSA_testing_table.csv')
+file_1_clean <- read_csv(paste0('../../data/weekly_pattern/patterns-',days[1],'.csv'))
+file_1_clean <- read_csv(paste0('../../data/weekly_pattern/patterns-',days[2],'.csv'))
+file_1_clean <- read_csv(paste0('../../data/weekly_pattern/patterns-',days[3],'.csv'))
 
-#' @title preclean SafeGraph weekly pattern data
-#' 
-#' @description select only useful columns for risk score calcultation and points in CA
-#' @import dplyr
-#' @param sg_data SafeGraph weekly pattern data downloaded from https://catalog.safegraph.io/app/information
-#' @param poi SafeGraph POI dataset (only contain CA data)
-sg_data_cleaning <- function(sg_data, poi){
-  sg_data <- sg_data %>% 
-    select(safegraph_place_id, 
-           visits_by_day, 
-           visits_by_each_hour, 
-           median_dwell, 
-           date_range_start) 
-  # inner join to filter points only in CA
-  sg_data <- sg_data %>% 
-    merge(poi %>% select(safegraph_place_id), 
-          by = "safegraph_place_id")
-  return(sg_data)
-}
+# preclean SafeGraph weekly pattern data ----------------------------------
 
+# no need to run this again for testing
+# days <- c('0624','0701','0708')
+# 
+# for (i in c(1,2,3)){
+#     nam <- paste0("file_",i,"_clean")
+#     file_1 <- read_csv(paste0('../../data/weekly_pattern/raw/patterns-',days[i],'-part1.csv'))
+#     file_2 <- read_csv(paste0('../../data/weekly_pattern/raw/patterns-',days[i],'-part2.csv'))
+#     file_3 <- read_csv(paste0('../../data/weekly_pattern/raw/patterns-',days[i],'-part3.csv'))
+#     file_4 <- read_csv(paste0('../../data/weekly_pattern/raw/patterns-',days[i],'-part4.csv'))
+#     file_clean <- sg_data_cleaning(file_1, poi) %>%
+#       rbind(sg_data_cleaning(file_2, poi)) %>%
+#       rbind(sg_data_cleaning(file_3, poi)) %>%
+#       rbind(sg_data_cleaning(file_4, poi))
+#     assign(nam, file_clean)
+#     rm(file_1, file_2, file_3, file_4)
+#     write_csv(file_clean, paste0('../../data/weekly_pattern/patterns-',days[i],'.csv'))
+#     print(paste0('successfully clean patterns-',days[i],'.csv'))
+#     rm(file_clean)
+# }
 
-#' @title Get Government Case/Death and Test Data
-#' 
-#' @description download and save case/death and test cvs from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
-#' To check chrome version: binman::list_versions("chromedriver")
-#' @import RSelenium
-#' @param chromever chrome version
-#' @param path save path, default is in Data folder
-#' @export
-# library(RSelenium)
-get_gov_data_rpi <- function(chromever, path = './Data'){
-  
-  rd <- rsDriver(browser = c("chrome"),chromever = chromever)
-  remDr <- rd$client
-  
-  gov_url <- 'http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/'
-  # navigate to main page
-  remDr$navigate(gov_url)
-  Sys.sleep(3) # wait until the page stop  loading
-  
-  frames <- remDr$findElements("css", "iframe")
-  remDr$switchToFrame(frames[[1]])
-  
-  # find the case_death box and click
-  webElem_side1 <- remDr$findElement(using = 'xpath',
-                                     value = "//html/body/div/aside/section/ul/li[4]")
-  webElem_side1$clickElement()
-  Sys.sleep(8) # wait until the page stop  loading
-  webElem_side1$clickElement()
-  
-  # find download box
-  webElem_table1 <- remDr$findElement(using = 'xpath',
-                                      value = "//html/body/div/div/section/div/div[@class ='tab-pane active']/div/div/div/div[@class = 'box-body']/a")
-  
-  # get link
-  url_table1 <- webElem_table1$getElementAttribute('href')
-  # download case_death file
-  download.file(url_table1[[1]],
-                paste0(path,'/LA_County_Covid19_CSA_case_death_table.csv'))
-  
-  
-  # find the testing box and click
-  webElem_side2 <- remDr$findElement(using = 'xpath',
-                                     value = "//html/body/div/aside/section/ul/li[5]")
-  webElem_side2$clickElement()
-  Sys.sleep(3) # wait until the page stop  loading
-  webElem_side1$clickElement()
-  
-  # find download box
-  webElem_table2 <- remDr$findElement(using = 'xpath',
-                                      value = "//html/body/div/div/section/div/div[@class ='tab-pane active']/div/div/div/div[@class = 'box-body']/a")
-  
-  
-  # get link
-  url_table2 <- webElem_table2$getElementAttribute('href')
-  # download case_death file
-  download.file(url_table2[[1]], 
-                paste0(path,'/LA_County_Covid19_CSA_testing_table.csv'))
-  remDr$closeServer()
-  remDr$close()
-  rd$server$stop()
-  return(print(paste0("Success. Files are stored.")))
-}
+# calculate risk score ----------------------------------------------------
 
+risk <- main(file_1_clean, file_2_clean, file_3_clean,
+            poi, poi_area, open_hours,
+            case_death_table, testing_table) 
+
+sum(risk$risk_score!=-1)
+
+write_csv(risk,"risk.csv")
