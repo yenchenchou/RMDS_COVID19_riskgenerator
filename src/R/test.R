@@ -38,4 +38,4 @@ risk <- main(file_1, file_2, file_3,
              poi, poi_area, open_hours,
              case_death_table, testing_table) 
 
-# write_csv(risk,"risk_1-16_data.csv")
+write_csv(risk,"risk.csv")
