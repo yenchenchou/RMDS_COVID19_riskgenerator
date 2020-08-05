@@ -21,7 +21,7 @@ from open_store_getter import OpenHour
 
 
 if __name__ == "__main__":
-    if os.path.isfile("data/internal/zipcode_mapper.json"):
+    if os.path.isfile("data/internal/RMDS_zipcode_mapper.json"):
         print("zipcode_mapper.json already exists")
         print("\n")
     else:

@@ -29,7 +29,7 @@ class POI(object):
 
 
     def read_mapper(self):
-        with open("data/internal/zipcode_mapper.json") as file:
+        with open("data/internal/RMDS_zipcode_mapper.json") as file:
             self.mapper_dict = json.load(file)
         self.mapper_dict = {str(key):val for key, val in self.mapper_dict.items()}
 
