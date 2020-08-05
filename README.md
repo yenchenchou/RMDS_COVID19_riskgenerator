@@ -8,14 +8,14 @@
  2. Pre-Download data:
  A total of 7 files need to download (Don't worry, we have example data for you!). Store all the data into `/data/external/` folder
     * Data from SafeGraph.com: Need to apply an account
-        * Consecutive 3 weeks of user patterns: Weekly Places Patterns (1-3)
+        * **Consecutive 3 weeks of user patterns**: Weekly Places Patterns (1-3)
         ![Weekly Places Patterns](data/internal/image/weekly.png)
-        * POI data: Core Places (US Only)
-        ![poi](data/internal/image/poi.png) (4)
-    * Third party data saved in SafeGraph.com:
-        * POI area square foot data: Need to download from AWS CLI (stored in S3) (5)
+        * **POI (Point of Interest) data**: Core Places (US Only) (4)
+        ![poi](data/internal/image/poi.png) 
+    * Third party precalculated data saved in SafeGraph.com:
+        * **POI area square foot data**: Need to download from AWS CLI (stored in S3) (5)
         ```aws s3 cp s3://sg-c19-response/geo-supplement/May2020Release/SafeGraphPlacesGeoSupplementSquareFeet.csv.gz <your_local_path> --profile safegraphws --endpoint https://s3.wasabisys.com```
-    * infection cases and death cases from [lacounty.gov](http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/)
+    * **infection cases and death cases** from [lacounty.gov](http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/)
         * Click `[Table: Community Case/Death]`, then click download (6)
         * Click `[Table: Community Testing]`, then click download (7)
         ![test_death](data/internal/image/test_death.png)
