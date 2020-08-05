@@ -8,11 +8,9 @@ import re
 import time
 
 import bs4
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import requests
-import seaborn as sns
 
 from collections import defaultdict
 

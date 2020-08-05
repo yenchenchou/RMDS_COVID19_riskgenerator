@@ -20,7 +20,9 @@
         * Click `[Table: Community Testing]`, then click download (7)
         ![test_death](data/internal/image/test_death.png)
 
-3. Run the script:
+3. Check necessary dependencies in `requirements.txt` 
+
+4. Run the script:
 Go to the folder where you clone the files:
     * Get processed data
     ```Python

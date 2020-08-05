@@ -22,7 +22,7 @@ from open_store_getter import OpenHour
 
 if __name__ == "__main__":
     if os.path.isfile("data/internal/RMDS_zipcode_mapper.json"):
-        print("zipcode_mapper.json already exists")
+        print("RMDS_zipcode_mapper.json already exists")
         print("\n")
     else:
         print("Starting scraping data from .laalmanac.com...")
@@ -33,6 +33,7 @@ if __name__ == "__main__":
         map_table = zip_community_mapper.get_mapper(url)
         zip_community_mapper.save_json()
         print("Complete saving zipcode_mapper!")
+        print("\n")
 
 
     print("Start getting poi data...")
@@ -41,13 +42,15 @@ if __name__ == "__main__":
     df_poi = poi_getter.get_poi()
     df_poi.to_csv("data/processed/RMDS_poi.csv", index = False)
     print("Complete saving poi data!")
+    print("\n")
 
 
     print("Start getting poi area data...")
     area_getter = POIArea()
     df_area = area_getter.get_area()
-    df_area.to_csv("data/processed/RMDS_poi_area_square_feet.csv") # csv.gz
+    df_area.to_csv("data/processed/RMDS_poi_area_square_feet.csv", index = False) # csv.gz
     print("Complete saving poi area data!")
+    print("\n")
 
 
     print("Start getting open hours data...")
