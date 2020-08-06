@@ -41,6 +41,7 @@ class POI:
                            "open_hours",
                            "city",
                            "postal_code"]]
+        self.df.rename(columns={"open_hours": "open_hours_dict"}, inplace = True)
         self.df["community"] = self.df["postal_code"].apply(lambda x: self.mapping(x))
         self.df = self.df[self.df["community"].notnull()]
         return self.df

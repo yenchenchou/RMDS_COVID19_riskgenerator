@@ -35,10 +35,10 @@ class OpenHour:
         """
         self.df = pd.read_csv(
             self.file_path,
-            usecols=['safegraph_place_id', 'open_hours', "community"])
+            usecols=['safegraph_place_id', 'open_hours_dict', "community"])
         self.df = self.df[self.df["community"].notnull()]
-        self.df = self.df[["safegraph_place_id", "open_hours"]].copy()
-        self.df = self.df[self.df["open_hours"].notnull()].copy()
+        self.df = self.df[["safegraph_place_id", "open_hours_dict"]].copy()
+        self.df = self.df[self.df["open_hours_dict"].notnull()].copy()
 
     @staticmethod
     def _turn_dict_helper(x):
@@ -58,7 +58,8 @@ class OpenHour:
 
 
     def _turn_dict(self):
-        self.df["open_hours"] = self.df["open_hours"].apply(lambda x: self._turn_dict_helper(x))
+        self.df["open_hours_dict"] = self.df["open_hours_dict"]\
+            .apply(lambda x: self._turn_dict_helper(x))
         return self.df
 
 
