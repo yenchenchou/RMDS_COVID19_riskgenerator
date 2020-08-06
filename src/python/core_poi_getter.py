@@ -1,28 +1,30 @@
 """
 @author: Yen-Chen Chou
 """
+import glob
 import json
+import os
 import pandas as pd
 
 class POI:
     """ Clean and Filter POI data from SafeGraph.com(Core Places)
     Arg:
-        file_path (str): file path of core_places_data
+        folder_path (str): file path of core_places_data
 
     Examples:
     >>> from core_poi_getter import POI
-    >>> poi_getter = POI(file_path)
+    >>> poi_getter = POI(folder_path)
     >>> poi_getter.read_mapper()
     >>> df_poi = poi_getter.get_poi()
 
     Attributes:
-        file_path (str): file path of core_places_data
+        folder_path (str): file path of core_places_data
         df (dataframe): final data
         mapper_dict (str): zipcode and community/city key value pairs
     """
-    def __init__(self, file_path):
-        self.file_path = file_path
-        self.df = None
+    def __init__(self, folder_path):
+        self.folder_path = folder_path
+        self.df = pd.DataFrame()
         self.mapper_dict = None
 
 
@@ -31,19 +33,22 @@ class POI:
         Return:
             df (dataframe): poi data
         """
-        # filter_ls = ["Restaurants and Other Eating Places", "Grocery Stores"]
-        #     df = df[df["top_category"].isin(filter_ls)].copy()
-        self.df = pd.read_csv(self.file_path, compression="gzip")
-        self.df = self.df[self.df["region"] == "CA"].copy()
-        self.df = self.df[["safegraph_place_id",
-                           "latitude",
-                           "longitude",
-                           "open_hours",
-                           "city",
-                           "postal_code"]]
-        self.df.rename(columns={"open_hours": "open_hours_dict"}, inplace = True)
-        self.df["community"] = self.df["postal_code"].apply(lambda x: self.mapping(x))
-        self.df = self.df[self.df["community"].notnull()]
+        folder_path_exp = os.path.join(self.folder_path, "*.csv.gz")
+        file_paths = glob.glob(folder_path_exp)
+        for paths in file_paths:
+            df_tmp = pd.read_csv(paths, compression="gzip")
+            df_tmp = df_tmp[df_tmp["region"] == "CA"].copy()
+            df_tmp = df_tmp[["safegraph_place_id",
+                             "latitude",
+                             "longitude",
+                             "open_hours",
+                             "city",
+                             "postal_code"]].copy()
+            df_tmp.rename(columns={"open_hours": "open_hours_dict"}, inplace=True)
+            df_tmp["community"] = df_tmp["postal_code"].apply(lambda x: self.mapping(x))
+            df_tmp = df_tmp[df_tmp["community"].notnull()]
+            df_tmp.drop(["postal_code"], axis=1, inplace=True)
+            self.df = pd.concat([self.df, df_tmp], axis=0, ignore_index=True)
         return self.df
 
 

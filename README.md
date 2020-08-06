@@ -1,7 +1,9 @@
 # RMDS_COVID19_riskgenerator
+## Project structure
+This is project produce a risk score and risk lever according to POI (Point of Interest) data gather from [SafeGraph](https://www.safegraph.com/), COVID-19 cases from [lacounty.gov](http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard), and external dataset such as Yelp API. The project structure is as follows:
+![RPI_RiskScore_FlowChart](data/internal/image/RPI_RiskScore_FlowChart.png)
 
-
-# How to use this script
+## How to use this script
 
  1. Clone the whole repository from GitHub
 
@@ -30,10 +32,11 @@ Go to the folder where you clone the files:
     ```Python
     python src/python/export_data.py
     ```
-        *  You will get RMDS_open_hours.csv, RMDS_poi_area_square_feet.csv, RMDS_poi.csv, and RMDS_zipcode_mapper.json
+    * You will get RMDS_open_hours.csv, RMDS_poi_area_square_feet.csv, RMDS_poi.csv, and RMDS_zipcode_mapper.json
     * Get the risk score
     ```R
-    R CMD BATCH function.R
+    R CMD BATCH functions.R
+    R CMD BATCH test.R
     ```
-        * You will get risk score
+    * You will get risk score in `data/result` folder
 

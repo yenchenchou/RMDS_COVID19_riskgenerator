@@ -3,6 +3,8 @@
 """
 import os
 
+import pandas as pd
+
 from core_poi_getter import POI
 from postal_community_mapper import ZipCommunityMapper
 from poi_area_getter import POIArea
@@ -26,9 +28,10 @@ if __name__ == "__main__":
 
 
     print("Start getting poi data...")
-    FILE_PATH = "data/external/Core-USA-July2020-Release"\
-        "-CORE_POI-2020_06-2020-07-13/core_poi-part1.csv.gz"
-    poi_getter = POI(FILE_PATH)
+    FOLDER_PATH = "data/external/Core-USA-July2020-Release"\
+        "-CORE_POI-2020_06-2020-07-13"
+    poi_getter = POI(FOLDER_PATH)
+    print("Getting core POI data, it may take up to 1 min...")
     poi_getter.read_mapper()
     df_poi = poi_getter.get_poi()
     df_poi.to_csv("data/processed/RMDS_poi.csv", index=False)
@@ -47,8 +50,8 @@ if __name__ == "__main__":
     print("Start getting open hours data...")
     FILE_PATH = "data/processed/RMDS_poi.csv"
     open_hours = OpenHour(FILE_PATH)
+    print("Getting hour data, it may take up to 2 mins...")
     open_hours.read_data()
-    print("getting hour data, it may take up to 2 mins...")
     open_hours_df = open_hours.get_open_hours_df()
     open_hours_df.to_csv("data/processed/RMDS_open_hours.csv", index=False)
     print("Complete saving open hours data!")
