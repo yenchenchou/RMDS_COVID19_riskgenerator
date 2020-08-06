@@ -1,6 +1,7 @@
 # RMDS_COVID19_riskgenerator
 ## Project structure
-The project is an extension and computing optimized version of team [RPI](https://github.com/Yueyang-Li-Elfa/Risk-Score-RPI-Solver) who participate the 2020 COVID-19 challenge held by [RMDS Lab](https://grmds.org/2020challenge). The orignal projects was reviewed by a panel of judges from the City of LA, LA County Department of Public Health, Chamber of Commerce, and academia. This project produce a risk score and risk level according to POI (Point of Interest) data gather from [SafeGraph](https://www.safegraph.com/), COVID-19 cases from [lacounty.gov](http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard), and external dataset such as Yelp API. The project structure is as follows:
+The project is an extension and computation optimized version of team [RPI](https://github.com/Yueyang-Li-Elfa/Risk-Score-RPI-Solver) who participate the 2020 COVID-19 challenge held by [RMDS Lab](https://grmds.org/2020challenge). The orignal project was reviewed by a panel of judges from the City of LA, LA County Department of Public Health, Chamber of Commerce, and academia. This project produce a risk score and risk level according to POI (Point of Interest) data gathered from [SafeGraph](https://www.safegraph.com/), COVID-19 cases from [lacounty.gov](http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard), and external dataset such as Yelp API. The project structure is as follows:
+
 ![RPI_RiskScore_FlowChart](data/internal/image/RPI_RiskScore_FlowChart.png)
 
 ## How to use this script

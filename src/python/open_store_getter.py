@@ -92,7 +92,7 @@ class OpenHour:
         return max_hours
 
 
-    def get_open_hours_df(self):
+    def get_open_hours(self):
         """ Get POI data open store attached
         Return:
             df (dataframe): open store data
