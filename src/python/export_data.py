@@ -10,14 +10,14 @@ from core_poi_getter import POI
 from postal_community_mapper import ZipCommunityMapper
 from poi_area_getter import POIArea
 from open_store_getter import OpenHour
-from weekly_pattern_getter import WeekPattern
+# from weekly_pattern_getter import WeekPattern
 
 
 if __name__ == "__main__":
     
-    WEEK1 = sys.argv[1]
-    WEEK2 = sys.argv[2]
-    WEEK3 = sys.argv[3]
+    # WEEK1 = sys.argv[1]
+    # WEEK2 = sys.argv[2]
+    # WEEK3 = sys.argv[3]
 
     if os.path.isfile("data/internal/RMDS_zipcode_mapper.json"):
         print("RMDS_zipcode_mapper.json already exists")

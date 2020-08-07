@@ -39,15 +39,18 @@ class POI:
             df_tmp = pd.read_csv(paths, compression="gzip")
             df_tmp = df_tmp[df_tmp["region"] == "CA"].copy()
             df_tmp = df_tmp[["safegraph_place_id",
+                             "location_name",
+                             "top_category",
                              "latitude",
                              "longitude",
-                             "open_hours",
+                             "street_address",
+                             "postal_code",
                              "city",
-                             "postal_code"]].copy()
+                             "open_hours"]].copy()
             df_tmp.rename(columns={"open_hours": "open_hours_dict"}, inplace=True)
             df_tmp["community"] = df_tmp["postal_code"].apply(lambda x: self.mapping(x))
             df_tmp = df_tmp[df_tmp["community"].notnull()]
-            df_tmp.drop(["postal_code"], axis=1, inplace=True)
+            df_tmp["top_category"].fillna(value="missing", inplace=True)
             self.df = pd.concat([self.df, df_tmp], axis=0, ignore_index=True)
         return self.df
 
