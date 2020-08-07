@@ -48,6 +48,6 @@ risk <- main(file_1_clean, file_2_clean, file_3_clean,
 sum(risk$risk_score!=-1)
 
 risk_final <- risk %>% 
-  select(location_name, top_category, latitude, longitude, street_address, postal_code, city, community, risk_score, risk_level, update_date) %>% 
-  rename(`Time Stamp` = update_date, Region = community, Latitude = latitude, Longitude = longitude, `Risk-Score` = risk_score, `Risk-Level` = risk_level)
+  select(location_name, top_category, latitude, longitude, street_address, postal_code, city, community, risk_score, risk_level, update_date)
+  # rename(`Time Stamp` = update_date, Region = community, Latitude = latitude, Longitude = longitude, `Risk-Score` = risk_score, `Risk-Level` = risk_level)
 write_csv(risk_final,"data/result/risk.csv")
