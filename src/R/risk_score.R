@@ -28,7 +28,7 @@ get_daily_visits <- function (x) {
              sep = ",", convert = T) %>%
     # Gather: to make the data tidy
     gather(key = "weekday", value = "visits_by_day", -safegraph_place_id, -median_dwell)
-  temp_daily
+  x
 }
 
 #' @title Get hourly visits
@@ -372,14 +372,14 @@ risk_score <- function(file_1, file_2, file_3,
 # load data ---------------------------------------------------------------
 
 print('start loading required data')
-poi <- read_csv('../../data/processed/RMDS_poi.csv', col_types = cols())
-poi_area <- read_csv('../../data/processed/RMDS_poi_area_square_feet.csv', col_types = cols())
-open_hours <- read_csv('../../data/processed/RMDS_open_hours.csv', col_types = cols())
-case_death_table <- read_csv('../../data/external/LA_County_Covid19_CSA_case_death_table.csv', col_types = cols())
-testing_table <- read_csv('../../data/external/LA_County_Covid19_CSA_testing_table.csv', col_types = cols())
-file_1_clean <- read_csv('../../data/weekly_pattern/patterns-1.csv', col_types = cols())
-file_2_clean <- read_csv('../../data/weekly_pattern/patterns-2.csv', col_types = cols())
-file_3_clean <- read_csv('../../data/weekly_pattern/patterns-3.csv', col_types = cols())
+poi <- read_csv('data/processed/RMDS_poi.csv', col_types = cols())
+poi_area <- read_csv('data/processed/RMDS_poi_area_square_feet.csv', col_types = cols())
+open_hours <- read_csv('data/processed/RMDS_open_hours.csv', col_types = cols())
+case_death_table <- read_csv('data/external/LA_County_Covid19_CSA_case_death_table.csv', col_types = cols())
+testing_table <- read_csv('data/external/LA_County_Covid19_CSA_testing_table.csv', col_types = cols())
+file_1_clean <- read_csv('data/processed/patterns-1.csv', col_types = cols())
+file_2_clean <- read_csv('data/processed/patterns-2.csv', col_types = cols())
+file_3_clean <- read_csv('data/processed/patterns-3.csv', col_types = cols())
 print('finish loading required data')
 
 # calculate risk score ----------------------------------------------------
@@ -399,6 +399,6 @@ risk_poi <- risk_poi %>% mutate(update_date = update_date)
 risk_community <- risk_community %>% mutate(update_date = update_date)
 
 print('Saving risk scores to files')
-write_csv(risk_poi ,paste0('../../data/risk_poi-',update_date,'.csv'))
-write_csv(risk_community ,paste0('../../data/risk_community-',update_date,'.csv'))
+write_csv(risk_poi ,paste0('data/result/risk_poi-',update_date,'.csv'))
+write_csv(risk_community ,paste0('data/result/risk_community-',update_date,'.csv'))
 print("Completed!")

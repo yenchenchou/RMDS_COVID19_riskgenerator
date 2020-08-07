@@ -41,13 +41,3 @@ class WeekPattern:
             if self.week_str in path:
                 self.path_list.append(path)
         self.path_list.sort()
-
-
-# FOLDER_PATH = "data/external/weekly_pattern"
-# WEEK1 = "0624"
-# pattern_getter = WeekPattern(FOLDER_PATH, WEEK1)
-# print("Getting week1 pattern data, it may take up to 2 min...")
-# # pattern_getter.get_paths()
-# # print(pattern_getter.path_list)
-# df_pattern = pattern_getter.get_pattern()
-# df_pattern.to_csv("data/processed/patterns-"+WEEK1+".csv", index=False)
