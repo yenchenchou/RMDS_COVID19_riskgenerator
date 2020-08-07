@@ -20,12 +20,7 @@ get_daily_visits <- function (x) {
   # select daily visit data
   x <- x %>%
     # select columns related to daily visits
-<<<<<<< Updated upstream:src/R/functions.R
-    select(safegraph_place_id, visits_by_day, median_dwell) 
-  x <- x %>%
-=======
     select(safegraph_place_id, visits_by_day, median_dwell) %>%
->>>>>>> Stashed changes:src/R/risk_score.R
     # Parse visits_by_day [json] into columns in dataframe
     # Each represents a weekday: from Monday to Sunday
     mutate(visits_by_day = str_extract(visits_by_day, "([0-9]+,)+[0-9]")) %>%
@@ -33,11 +28,7 @@ get_daily_visits <- function (x) {
              sep = ",", convert = T) %>%
     # Gather: to make the data tidy
     gather(key = "weekday", value = "visits_by_day", -safegraph_place_id, -median_dwell)
-<<<<<<< Updated upstream:src/R/functions.R
-  x
-=======
   temp_daily
->>>>>>> Stashed changes:src/R/risk_score.R
 }
 
 #' @title Get hourly visits
@@ -49,12 +40,7 @@ get_daily_visits <- function (x) {
 get_hourly_visits <- function(x) {
   x <- x %>%
     # select columns related to hourly visits
-<<<<<<< Updated upstream:src/R/functions.R
-    select(safegraph_place_id, date_range_start, visits_by_each_hour)
-  x <- x %>%
-=======
     select(safegraph_place_id, date_range_start, visits_by_each_hour) %>%
->>>>>>> Stashed changes:src/R/risk_score.R
     # Parse visits_by_each_hour [json] into columns in dataframe
     mutate(visits_by_each_hour = str_extract(visits_by_each_hour, "([0-9]+,)+[0-9]")) %>%
     separate(visits_by_each_hour, into = c(str_c("Mon", 1:24, sep = "_"),
@@ -267,28 +253,15 @@ match_infection_rate <- function(poi_data = poi,
 #' @param hourly Processed houly visits dataset, output of the function "hourly_process"
 #' @return The final risk score dataframe
 #' @export
-<<<<<<< Updated upstream:src/R/functions.R
-calculate_risk_score <- function(poi = poi,
-                                 poi_area = poi_area,
-                                 open_hours = open_hours,
-                                 daily = daily,
-                                 hourly = hourly) {
-=======
 calculate_risk_score_poi <- function(poi = poi,
                                      poi_area = poi_area,
                                      open_hours = open_hours,
                                      daily = daily,
                                      hourly = hourly) {
->>>>>>> Stashed changes:src/R/risk_score.R
   
   # Joining the data
   risk_poi <- open_hours %>%
     # Join the poi data
-<<<<<<< Updated upstream:src/R/functions.R
-    # left_join(poi %>% select(safegraph_place_id, location_name, top_category, latitude, longitude, street_address, city, community, postal_code, area_square_feet, infection_rate),
-    #           by = c("safegraph_place_id")) %>%
-=======
->>>>>>> Stashed changes:src/R/risk_score.R
     left_join(poi, by = c("safegraph_place_id")) %>% 
     # join poi area_square_feet data
     left_join(poi_area, by = c("safegraph_place_id")) %>% 
@@ -303,11 +276,7 @@ calculate_risk_score_poi <- function(poi = poi,
     left_join(hourly, by = c("safegraph_place_id", "weekday"))
   
   # Calculate the expected number of people encountered when coming to a place
-<<<<<<< Updated upstream:src/R/functions.R
-  risk <- risk %>%
-=======
   risk_poi <- risk_poi %>%
->>>>>>> Stashed changes:src/R/risk_score.R
     mutate(interval = ifelse(avg_visits == 0, NA, open_hours*60 / avg_visits),
            round_visit = ceiling(avg_visits),
            encounter_max = ifelse(avg_visits == 0, 0,
@@ -344,17 +313,11 @@ calculate_risk_score_poi <- function(poi = poi,
                                ifelse(risk_score <= 0.1, 0,
                                       ifelse(risk_score <= 0.5, 1,
                                              ifelse(risk_score <= 0.9, 2, 3)))),
-<<<<<<< Updated upstream:src/R/functions.R
-           risk_score = ifelse(is.na(risk_score), -1, risk_score),
-           update_date = Sys.Date())
-  
-=======
            risk_score = ifelse(is.na(risk_score), -1, risk_score)) %>% 
     select(safegraph_place_id, weekday, location_name, top_category, 
            latitude, longitude, street_address, postal_code, 
            city, community,
            risk_score, risk_level)
->>>>>>> Stashed changes:src/R/risk_score.R
   # Return the final risk scores
   return(risk_poi)
 }
@@ -386,33 +349,16 @@ calculate_risk_score_community <- function(risk_poi){
 #' @param testing_table The community testing table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
 #' @return The final risk score dataframe
 #' @export
-<<<<<<< Updated upstream:src/R/functions.R
-main <- function(file_1, file_2, file_3,
-                 poi, poi_area, open_hours,
-                 case_death_table, testing_table) {
-  print("Processing daily visits data")
-=======
 risk_score <- function(file_1, file_2, file_3,
                        poi, poi_area, open_hours,
                        case_death_table, testing_table) {
   print("Start calculating risk score")
   print("Processing daily visits data... may take a few minutes")
->>>>>>> Stashed changes:src/R/risk_score.R
   daily <- daily_process(file_1, file_2, file_3)
   print("Processing hourly visits data... may take a few minutes")
   hourly <- hourly_process(file_1, file_2, file_3)
   print("Calculating infection rate and matching each POI with corresponding infection rate")
   poi_extended <- match_infection_rate(poi, case_death_table, testing_table)
-<<<<<<< Updated upstream:src/R/functions.R
-  print("Calculating risk scores")
-  risk <- calculate_risk_score(poi_extended, poi_area, open_hours, daily, hourly)
-  print("Completed")
-  return(risk)
-}
-
-#devtools::document()
-
-=======
   print("Calculating poi risk scores")
   risk_poi <- calculate_risk_score_poi(poi_extended, poi_area, open_hours, daily, hourly)
   print("Calculating community risk scores")
@@ -456,4 +402,3 @@ print('Saving risk scores to files')
 write_csv(risk_poi ,paste0('../../data/risk_poi-',update_date,'.csv'))
 write_csv(risk_community ,paste0('../../data/risk_community-',update_date,'.csv'))
 print("Completed!")
->>>>>>> Stashed changes:src/R/risk_score.R
