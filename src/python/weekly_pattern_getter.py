@@ -1,7 +1,6 @@
 """
 @author: Yen-Chen Chou
 """
-#%%
 import glob
 import os
 from pathlib import Path
@@ -10,7 +9,31 @@ import pandas as pd
 
 from _file_display import DisplayablePath
 
-class WeekPattern():
+class WeekPattern:
+    """ Clean and Filter weekly pattern data from SafeGraph.com(Core Places)
+    Args:
+        folder_path (str): weekly pattern data parent folder
+        week1 (str): week1 pattern data folder
+        week2 (str): week2 pattern data folder
+        week3 (str): week3 pattern data folder
+
+    Examples:
+    >>> FOLDER_PATH = "data/external/weekly_pattern"
+    >>> WEEK1, WEEK2, WEEK3 = "0715", "0722", "0729"
+    >>> week_pattern = WeekPattern(FOLDER_PATH, WEEK1, WEEK2, WEEK3)
+    >>> week_pattern.check_availability()
+    >>> week_pattern.get_all_pattern()
+
+    Attributes:
+        folder_path (str): weekly pattern data parent folder
+        week1 (str): week1 pattern data folder
+        week2 (str): week2 pattern data folder
+        week3 (str): week3 pattern data folder
+        df_pattern (dataframe): final data
+        df_poi (dataframe): processed POI data
+        folder_names (list): weekly pattern folder name accoring user input
+        paths (list): .csv.gz file paths for one single folder
+    """
     def __init__(self, folder_path, week1, week2, week3):
         self.week1 = week1
         self.week2 = week2
@@ -23,6 +46,10 @@ class WeekPattern():
 
 
     def see_available_files(self, silent=True):
+        """ See available weekly pattern files
+        Args:
+            silent (bool, optional): print file tree. Defaults to True.
+        """
         self.paths = DisplayablePath.make_tree(Path(self.folder_path))
         if silent:
             pass
@@ -32,6 +59,7 @@ class WeekPattern():
 
 
     def get_all_pattern(self):
+        """Get all three pattern data"""
         self.get_folders()
         for folder in self.folder_names:
             file_list = self.get_file_paths(folder)
@@ -43,7 +71,12 @@ class WeekPattern():
 
 
     def get_one_pattern(self, file_list):
-        """"""
+        """ Get one week filtered pattern data
+        Args:
+            file_list (str): a list of files in one day folder
+        Returns:
+            df_pattern: filtered pattern data
+        """
         for path in file_list:
             df_filter = self.get_filter(path)
             self.df_pattern = pd.concat(
@@ -54,33 +87,47 @@ class WeekPattern():
 
 
     def get_filter(self, path):
+        """Filter dataframe
+        Args:
+            path (str): path to file
+        Returns:
+            df_tmp (dataframe): filtered dataframe
+        """
         df_tmp = pd.read_csv(
-            path, 
-            usecols= ["safegraph_place_id",
-                      "visits_by_day",
-                      "visits_by_each_hour",
-                      "median_dwell",
-                      "date_range_start",
-                      "date_range_end"],
+            path,
+            usecols=["safegraph_place_id",
+                     "visits_by_day",
+                     "visits_by_each_hour",
+                     "median_dwell",
+                     "date_range_start",
+                     "date_range_end"],
             compression="gzip")
         df_tmp = pd.merge(df_tmp, self.df_poi, how="inner")
         return df_tmp
 
 
     def get_folders(self):
+        """Get all folders for pattern data"""
         weeks = [self.week1, self.week2, self.week3]
         for week in weeks:
             self.folder_names.append(os.path.join(self.folder_path, week))
 
 
-    def get_file_paths(self, folder):
-        """"""
+    @staticmethod
+    def get_file_paths(folder):
+        """ Get .csv.gz file paths for one single folder
+        Args:
+            folder (str): folder to the files on one day
+        Returns:
+            file_list (list): file list
+        """
         file_list = glob.glob(os.path.join(folder, "*.csv.gz"))
         file_list.sort()
         return file_list
 
 
     def check_availability(self):
+        """ Check existence of data that user specify"""
         weeks = [self.week1, self.week2, self.week3]
         dates = list(os.walk(self.folder_path))[0][1]
         for week in weeks:
@@ -91,10 +138,3 @@ class WeekPattern():
                 break
         else:
             print("Pattern data available")
-
-#%%
-# os.chdir("/Users/yenchenchou/Documents/RMDS_YC/RiskScore/RMDS_COVID19_riskgenerator")
-# week_pattern = WeekPattern("data/external/weekly_pattern", "0710", "0722", "0729")
-# week_pattern.check_availability()
-# week_pattern.get_all_pattern()
-
