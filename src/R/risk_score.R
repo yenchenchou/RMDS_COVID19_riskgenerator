@@ -24,7 +24,7 @@ get_daily_visits <- function (x) {
     # Parse visits_by_day [json] into columns in dataframe
     # Each represents a weekday: from Monday to Sunday
     mutate(visits_by_day = str_extract(visits_by_day, "([0-9]+,)+[0-9]")) %>%
-    separate(visits_by_day, into = c("Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"),
+    separate(visits_by_day, into = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
              sep = ",", convert = T) %>%
     # Gather: to make the data tidy
     gather(key = "weekday", value = "visits_by_day", -safegraph_place_id, -median_dwell)
@@ -46,7 +46,7 @@ get_hourly_visits <- function(x) {
     separate(visits_by_each_hour, into = c(str_c("Mon", 1:24, sep = "_"),
                                            str_c("Tue", 1:24, sep = "_"),
                                            str_c("Wed", 1:24, sep = "_"),
-                                           str_c("Thur", 1:24, sep = "_"),
+                                           str_c("Thu", 1:24, sep = "_"),
                                            str_c("Fri", 1:24, sep = "_"),
                                            str_c("Sat", 1:24, sep = "_"),
                                            str_c("Sun", 1:24, sep = "_")), sep = ",", convert = T) %>%
@@ -65,27 +65,6 @@ get_hourly_visits <- function(x) {
 #' @return A dataframe containing average daily visits and average median dwell time for each place of interest (POI)
 #' @export
 daily_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3) {
-  temp_daily_processed <- get_daily_visits(file_1) %>%
-    # bind three datasets together
-    rbind(get_daily_visits(file_2)) %>%
-    rbind(get_daily_visits(file_3)) %>%
-    # take average of last three weeks
-    group_by(safegraph_place_id, weekday) %>%
-    summarize(avg_visits = mean(visits_by_day, na.rm = T),
-              avg_median_dwell = mean(median_dwell, na.rm = T))
-  temp_daily_processed
-}
-
-
-#' @title Process daily visits data
-#'
-#' @description Process all three datasets to get daily visits data by calling function get_daily_visits, bind them together, and take averages
-#' @param file_1 SafeGraph weekly patterns dataset (week 1, use read_csv to load)
-#' @param file_2 SafeGraph weekly patterns dataset (week 2, use read_csv to load)
-#' @param file_3 SafeGraph weekly patterns dataset (week 3, use read_csv to load)
-#' @return A dataframe containing average daily visits and average median dwell time for each place of interest (POI)
-#' @export
-daily_process_new <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3) {
   temp_daily_processed <- get_daily_visits(file_1) %>%
     # bind three datasets together
     rbind(get_daily_visits(file_2)) %>%
@@ -121,8 +100,7 @@ hourly_process <- function(file_1 = weekly1, file_2 = weekly2, file_3 = weekly3)
     # take average of last three weeks
     group_by(safegraph_place_id, weekday) %>%
     summarise(cv = mean(cv),
-              peak = mean(peak)) %>% 
-    ungroup()
+              peak = mean(peak))
   temp_hourly_processed
 }
 
@@ -139,8 +117,7 @@ clean_gov_data <- function(gov_table){
       "(^City of |^Los Angeles - |^Unincorporated - )", "", .$geo_merge)
     ) %>% 
     group_by(geo_merge) %>% 
-    summarise(across(.cols = everything(),sum)) %>% 
-    ungroup()
+    summarise_each(sum)
   return(gov_table)
 }
 
@@ -211,7 +188,7 @@ match_infection_rate <- function(poi_data = poi,
     filter(geo_merge %in% la_community)
   rate_LA_city <- calculate_infection_rate(rate_LA_city, each = FALSE)
   
-  # match infection_rate in rate to poi_data 
+  # match cases and infection_rate in rate to poi_data 
   # first match by community names
   poi_data <-  poi_data %>% 
     select(-open_hours_dict) %>% 
@@ -310,9 +287,10 @@ calculate_risk_score_poi <- function(poi = poi,
   # NA: -1
   risk_poi <- risk_poi %>%
     mutate(risk_level = ifelse(is.na(risk_score), -1,
-                               ifelse(risk_score <= 0.1, 0,
-                                      ifelse(risk_score <= 0.5, 1,
-                                             ifelse(risk_score <= 0.9, 2, 3)))),
+                               ifelse(risk_score <= 0.2, 0,
+                                      ifelse(risk_score <= 0.4, 1,
+                                             ifelse(risk_score <= 0.6, 2,
+                                                    ifelse(risk_score <= 0.8, 3, 4))))),
            risk_score = ifelse(is.na(risk_score), -1, risk_score)) %>% 
     select(safegraph_place_id, weekday, location_name, top_category, 
            latitude, longitude, street_address, postal_code, 
@@ -326,13 +304,35 @@ calculate_risk_score_community <- function(risk_poi){
   risk_community <- risk_poi %>% 
     group_by(community,weekday) %>% 
     summarise(risk_score = mean(risk_score)) %>% 
-    mutate(risk_score = ifelse(risk_score == -1, NA, risk_score),
-           risk_level = ifelse(is.na(risk_score), -1,
-                               ifelse(risk_score <= 0.1, 0,
-                                      ifelse(risk_score <= 0.5, 1,
-                                             ifelse(risk_score <= 0.9, 2, 3)))),
+    mutate(risk_level = ifelse(is.na(risk_score), -1,
+                               ifelse(risk_score <= 0.2, 0,
+                                      ifelse(risk_score <= 0.4, 1,
+                                             ifelse(risk_score <= 0.6, 2,
+                                                    ifelse(risk_score <= 0.8, 3, 4))))),
            risk_score = ifelse(is.na(risk_score), -1, risk_score))
   return(risk_community)
+}
+
+#' @title Weekday to date
+#' 
+#' @description convert weekday to date and add cases_final by joining case_death_table
+#' @param risk the final risk score dataframe
+#' @param update_date the update date of SafeGraph data
+#' @param case_death_table the community case and death table downloaded from http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+#' @return the final risk score dataframe 
+#' @import tidyverse
+#' @export
+weekday_to_date <- function(risk, update_date, case_death_table){
+  risk <- risk %>% 
+    mutate(update_date = update_date,
+           day = as.numeric(factor(weekday, level = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
+                                   labels = 0:6)),
+           day = update_date + day) %>%
+    left_join((clean_gov_data(case_death_table) %>% 
+                 select(geo_merge, cases_final)),
+              by = c("community" = "geo_merge")) %>% 
+  select(-weekday, -update_date, -risk_score)
+  return(risk)
 }
 
 
@@ -393,10 +393,9 @@ risk <- risk_score(file_1_clean, file_2_clean, file_3_clean,
                    poi, poi_area, open_hours,
                    case_death_table, testing_table) 
 
-risk_poi <- risk$risk_poi
-risk_community <- risk$risk_community
-risk_poi <- risk_poi %>% mutate(update_date = update_date)
-risk_community <- risk_community %>% mutate(update_date = update_date)
+risk_poi <- weekday_to_date(risk$risk_poi, update_date, case_death_table)
+risk_community <- weekday_to_date(risk$risk_community, update_date, case_death_table) %>% 
+  select(day,community,cases_final,risk_level)
 
 print('Saving risk scores to files')
 write_csv(risk_poi ,paste0('data/result/risk_poi-',update_date,'.csv'))
