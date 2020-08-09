@@ -285,13 +285,12 @@ calculate_risk_score_poi <- function(poi = poi,
   
   # Reorder columns, add risk level and update date
   # NA: -1
+  breaks <- quantile(risk_poi$risk_score, probs = c(0.25, 0.5, 0.75),na.rm = TRUE)
   risk_poi <- risk_poi %>%
-    mutate(risk_level = ifelse(is.na(risk_score), -1,
-                               ifelse(risk_score <= 0.2, 0,
-                                      ifelse(risk_score <= 0.4, 1,
-                                             ifelse(risk_score <= 0.6, 2,
-                                                    ifelse(risk_score <= 0.8, 3, 4))))),
-           risk_score = ifelse(is.na(risk_score), -1, risk_score)) %>% 
+    mutate(risk_level = ifelse(is.na(risk_score), 0, 
+                               ifelse(risk_score <= breaks[1], 1,
+                                      ifelse(risk_score <= breaks[2], 2,
+                                             ifelse(risk_score <= breaks[3], 3, 4))))) %>% 
     select(safegraph_place_id, weekday, location_name, top_category, 
            latitude, longitude, street_address, postal_code, 
            city, community,
@@ -303,13 +302,14 @@ calculate_risk_score_poi <- function(poi = poi,
 calculate_risk_score_community <- function(risk_poi){
   risk_community <- risk_poi %>% 
     group_by(community,weekday) %>% 
-    summarise(risk_score = mean(risk_score)) %>% 
-    mutate(risk_level = ifelse(is.na(risk_score), -1,
-                               ifelse(risk_score <= 0.2, 0,
-                                      ifelse(risk_score <= 0.4, 1,
-                                             ifelse(risk_score <= 0.6, 2,
-                                                    ifelse(risk_score <= 0.8, 3, 4))))),
-           risk_score = ifelse(is.na(risk_score), -1, risk_score))
+    summarise(risk_score = mean(risk_score,na.rm = TRUE))
+  
+  breaks <- quantile(risk_community$risk_score, probs = c(0.25, 0.5, 0.75),na.rm = TRUE)
+  risk_community <- risk_community %>%
+    mutate(risk_level = ifelse(is.na(risk_score), 0, 
+                               ifelse(risk_score <= breaks[1], 1,
+                                      ifelse(risk_score <= breaks[2], 2,
+                                             ifelse(risk_score <= breaks[3], 3, 4)))))
   return(risk_community)
 }
 
@@ -324,14 +324,15 @@ calculate_risk_score_community <- function(risk_poi){
 #' @export
 weekday_to_date <- function(risk, update_date, case_death_table){
   risk <- risk %>% 
-    mutate(update_date = update_date,
+    mutate(risk_score = ifelse(is.na(risk_score), 0, risk_score),
+           update_date = update_date,
            day = as.numeric(factor(weekday, level = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
                                    labels = 0:6)),
            day = update_date + day) %>%
     left_join((clean_gov_data(case_death_table) %>% 
                  select(geo_merge, cases_final)),
               by = c("community" = "geo_merge")) %>% 
-  select(-weekday, -update_date, -risk_score)
+  select(-weekday, -update_date)
   return(risk)
 }
 
@@ -395,7 +396,7 @@ risk <- risk_score(file_1_clean, file_2_clean, file_3_clean,
 
 risk_poi <- weekday_to_date(risk$risk_poi, update_date, case_death_table)
 risk_community <- weekday_to_date(risk$risk_community, update_date, case_death_table) %>% 
-  select(day,community,cases_final,risk_level)
+  select(day,community,risk_score, risk_level)
 
 print('Saving risk scores to files')
 write_csv(risk_poi ,paste0('data/result/risk_poi-',update_date,'.csv'))
