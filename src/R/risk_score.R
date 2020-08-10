@@ -378,9 +378,9 @@ poi_area <- read_csv('data/processed/RMDS_poi_area_square_feet.csv', col_types =
 open_hours <- read_csv('data/processed/RMDS_open_hours.csv', col_types = cols())
 case_death_table <- read_csv('data/external/LA_County_Covid19_CSA_case_death_table.csv', col_types = cols())
 testing_table <- read_csv('data/external/LA_County_Covid19_CSA_testing_table.csv', col_types = cols())
-file_1_clean <- read_csv('data/processed/patterns-1.csv', col_types = cols())
-file_2_clean <- read_csv('data/processed/patterns-2.csv', col_types = cols())
-file_3_clean <- read_csv('data/processed/patterns-3.csv', col_types = cols())
+file_1_clean <- read_csv('data/processed/pattern-0722.csv', col_types = cols())
+file_2_clean <- read_csv('data/processed/pattern-0729.csv', col_types = cols())
+file_3_clean <- read_csv('data/processed/pattern-0805.csv', col_types = cols())
 print('finish loading required data')
 
 # calculate risk score ----------------------------------------------------
