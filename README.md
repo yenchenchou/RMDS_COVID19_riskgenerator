@@ -30,8 +30,10 @@ pip install -r requirements.txt
 4. Run the script:
 Go to the folder where you clone the files:
     1. Get processed data (for example), you need to enter three weeks of patterns with four digits each:
-    `python src/python/export_data.py 0722 0729 0805`
 
+    ```Python
+    python src/python/export_data.py 0722 0729 0805
+    ```
 
         * You will get the following data:
             1. RMDS_open_hours.csv 
