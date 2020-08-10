@@ -42,7 +42,7 @@ class ZipCommunityMapper:
         self.final_dict = dict()
 
 
-    def _get_reference_community(self):
+    def __get_reference_community(self):
         """ Get reference community names for third party website
 
         Return:
@@ -60,7 +60,7 @@ class ZipCommunityMapper:
         return reference_com
 
 
-    def _get_url_connect(self):
+    def __get_url_connect(self):
         try:
             self.obj = requests.get(self.url)
         except:
@@ -72,14 +72,14 @@ class ZipCommunityMapper:
                 raise Exception("Not Client or Server Error, please update the code")
 
 
-    def _get_postal_community(self):
+    def __get_postal_community(self):
         """ Get community name list and zipcode name list
 
         Returns:
             community_ls (list): community list
             zipcode_ls (list): zipcode list
         """
-        self._get_url_connect()
+        self.__get_url_connect()
         web_content = bs4.BeautifulSoup(self.obj.text, "html.parser")
         table = web_content.find_all("td")
         for idx in range(len(table)):
@@ -91,8 +91,8 @@ class ZipCommunityMapper:
                 self.zipcode_ls.append(zipcode)
 
 
-    def _clean_community(self):
-        reference_com = self._get_reference_community()
+    def __clean_community(self):
+        reference_com = self.__get_reference_community()
         new_community_ls = list()
         for val in self.community_ls:
             val = re.sub(r"(^Los.Angeles.|\(Los Angeles\)|PO Boxes|\/.*)", "", val.strip())
@@ -115,7 +115,7 @@ class ZipCommunityMapper:
         self.community_ls = clean_ls
 
 
-    def _clean_postal(self):
+    def __clean_postal(self):
         new_zipcode_ls = list()
         for zip_sublist in self.zipcode_ls:
             tmp_list = [int(zipcode.strip()) for zipcode in zip_sublist.split(",")]
@@ -123,7 +123,7 @@ class ZipCommunityMapper:
         self.zipcode_ls = new_zipcode_ls
 
 
-    def _init_mapper(self):
+    def __init_mapper(self):
         for i in range(len(self.community_ls)):
             community = self.community_ls[i]
             zip_sub_ls = self.zipcode_ls[i]
@@ -131,7 +131,7 @@ class ZipCommunityMapper:
                 self.com_zip_dict[zipcode].add(community)
 
 
-    def _clean_mapper(self):
+    def __clean_mapper(self):
         map_table = dict()
         for key, val in self.com_zip_dict.items():
             map_table[key] = list(val)
@@ -144,7 +144,7 @@ class ZipCommunityMapper:
         self.com_zip_dict = map_table
 
 
-    def _correct_mapper(self):
+    def __correct_mapper(self):
         """ Approximate zipcode overlapped areas
         Returns:
             final_dict (dict): final zipcode and community string pairs
@@ -162,12 +162,12 @@ class ZipCommunityMapper:
     def get_mapper(self):
         """Combine the pipeline and get the data"""
 
-        self._get_postal_community()
-        self._clean_postal()
-        self._clean_community()
-        self._init_mapper()
-        self._clean_mapper()
-        self._correct_mapper()
+        self.__get_postal_community()
+        self.__clean_postal()
+        self.__clean_community()
+        self.__init_mapper()
+        self.__clean_mapper()
+        self.__correct_mapper()
 
         return self.final_dict
 

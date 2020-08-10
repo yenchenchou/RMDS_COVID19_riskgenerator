@@ -41,7 +41,7 @@ class OpenHour:
         self.df = self.df[self.df["open_hours_dict"].notnull()].copy()
 
     @staticmethod
-    def _turn_dict_helper(x):
+    def __turn_dict_helper(x):
         try:
             return ast.literal_eval(x)
         except ValueError:
@@ -57,20 +57,20 @@ class OpenHour:
             return empty_time
 
 
-    def _turn_dict(self):
+    def __turn_dict(self):
         self.df["open_hours_dict"] = self.df["open_hours_dict"]\
-            .apply(lambda x: self._turn_dict_helper(x))
+            .apply(lambda x: self.__turn_dict_helper(x))
         return self.df
 
 
-    def _tstrp(self, timestring):
+    def __tstrp(self, timestring):
         hour, _ = timestring.split(":")
         if int(hour) > 23:
             timestring = "0:00"
         return datetime.strptime(timestring, "%H:%M")
 
 
-    def _get_hours_period(self, val_list):
+    def __get_hours_periodr(self, val_list):
         """ Galculate operationg hours
         Arg:
             val_list (list): a list of time list,
@@ -83,7 +83,7 @@ class OpenHour:
             return 0
 
         for val in val_list:
-            open_t, close_t = self._tstrp(val[0]), self._tstrp(val[1])
+            open_t, close_t = self.__tstrp(val[0]), self.__tstrp(val[1])
             hours = (close_t - open_t).seconds / 3600
             if hours < 0:
                 hours = 24 + hours
@@ -97,13 +97,13 @@ class OpenHour:
         Return:
             df (dataframe): open store data
         """
-        self.df = self._turn_dict()
+        self.df = self.__turn_dict()
         open_hours_ls = list()
 
         for row in self.df.iterrows():
             place_id, open_hours = row[1][0], row[1][1]
             for key, val_list in open_hours.items():
-                hours = self._get_hours_period(val_list)
+                hours = self.__get_hours_periodr(val_list)
                 row = (place_id, key, hours)
                 open_hours_ls.append(row)
 
