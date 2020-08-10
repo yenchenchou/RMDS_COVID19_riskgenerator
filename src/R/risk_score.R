@@ -326,13 +326,12 @@ weekday_to_date <- function(risk, update_date, case_death_table){
   risk <- risk %>% 
     mutate(risk_score = ifelse(is.na(risk_score), 0, risk_score),
            update_date = update_date,
-           day = as.numeric(factor(weekday, level = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
-                                   labels = 0:6)),
+           day = as.numeric(factor(weekday, level = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))) - 1,
            day = update_date + day) %>%
     left_join((clean_gov_data(case_death_table) %>% 
                  select(geo_merge, cases_final)),
               by = c("community" = "geo_merge")) %>% 
-  select(-weekday, -update_date)
+    select(-weekday, -update_date)
   return(risk)
 }
 
