@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # ### Daily R value derived from number of cases reported in LA county
 # Mehrdad Kiamari, Bhaskar Krishnamachari - June 2020
 # 
@@ -22,9 +19,6 @@
 # 
 # As far as $R$ is concerned, it is equal to $\frac{\beta}{\sigma}$. Our idea is to estimate $\beta$ at each time from the above differential equation which involves $\frac{dI}{dt}$, then calculate the corresponding $R$.
 
-# In[1]:
-
-
 import json
 import re
 import matplotlib.pyplot as plt
@@ -43,70 +37,8 @@ from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 from scipy.interpolate import interp1d
 
-# from IPython.display import clear_output
-# get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina'")
 
-
-# Create a dictionary consisting of communities and their population as keys and values, respectively. 
-
-# with open('./data/raw/population.json') as json_file_pop:
-# 	data_population = json.load(json_file_pop)
-
-
-# Function to check if the communitiy exists in the dictionary for population
-
-# def check_if_community_is_in_dic_pop(community_name):
-# 	with open('population_whole_county.json') as json_file_pop:
-# 		data_population = json.load(json_file_pop)
-# 		temp = [val for key,val in data_population.items() if community_name == key.strip().split('--')[0]]
-# 		if len(temp)==1:
-# 			#print(community_name,"found")
-# 			return True
-# 		#print(community_name,"NOT found")    
-# 		return False
-
-def calculating_approx_R_for_community(sigma,ave_k):
-    vec_I,population = self.confirmed_daily, self.pop
-    c = len(vec_I)
-    matrix_I = vec_I[np.newaxis,:]
-    beta_SIR,R= np.zeros((c-1,)),np.zeros((c-1,))
-    for time in range(c-1):
-        clear_output(wait=True)
-        next_I,curr_I,N = ave_k*vec_I[time+1],ave_k*vec_I[time],population
-        print("curr", curr_I, "next", next_I)
-#         if next_I>curr_I:
-#             if next_I != 0 and curr_I != 0 and next_I != curr_I:
-#                 m = GEKKO()             # create GEKKO model
-#                 beta = m.Var(value=.2)      # define new variable, initial value=0
-#                 m.Equations([((1/(beta-sigma))*m.log(next_I/((beta-sigma)-beta*next_I/N))) -  ((1/(beta-sigma))*m.log(curr_I/((beta-sigma)-beta*curr_I/N))) == 1.0]) # equations
-#                 m.solve(disp=False)     # solve
-#                 output = beta.value[0]
-#             else:
-#                 if curr_I != 0:
-#                     output = (next_I - curr_I+sigma*curr_I)/(curr_I-(1/N)*curr_I**2)
-#                 else:
-#                     output = 0
-#         else:
-        if curr_I != 0:
-            output = (next_I - curr_I+sigma*curr_I)/(curr_I-(1/N)*curr_I**2)
-        else:
-            output = 0
-
-        beta_SIR[time] = max(0,output)
-        #beta_SIR[time] = max(0,solve_beta_for_single_time_exponential(matrix_I[0,time+1],matrix_I[0,time],sigma,population,0) )
-        self.infection_rate[time] = beta_SIR[time] / sigma
-        #R[time] = beta_SIR[time] / sigma
-        #risk[time] = max((10000)*R[time]*vec_I[time]*ave_k/(1.0*population),0)
-    clear_output(wait=True) 
-
-    #return R
-
-
-# ### Side Class and Functions
-# 
-# Each community is an object with few attributes such as name, number of daily or cumulative cases, etc.
-# 
-
+"""Each community is an object with few attributes such as name, number of daily or cumulative cases, etc."""
 class community:
     def __init__(self,name,actual_name,Today_date):
         self.name = name
@@ -190,24 +122,6 @@ def get_population_vec(list_communities):
 			#raise NameError('The name of one of communities has NOT been found!')	
 		return output
 
-# def get_population_vec(list_communities):
-#     with open('./data/raw/population.json') as json_file_pop:
-#         data = json.load(json_file_pop)
-        
-#         output_list = []
-#         for communiuty_obj in list_communities:
-#             temp = [val for key,val in data.items() if communiuty_obj.actual_name == key.strip().split('--')[0]]
-#             if temp :
-#                  output_list.append(int(temp.pop().strip()))
-#         if len(output_list) == len(list_communities):
-#             output = np.asarray(output_list)
-#         else:
-#             raise NameError('The name of one of communities has NOT been found!')	
-
-#         return output
-    
-
-
 # create matrix for number of infections for top selected communities    
 def create_matrix(list_selected_communities,type_plot,til_date):
     matrix_I =  np.zeros((len(list_selected_communities),til_date ))
@@ -230,60 +144,6 @@ def fix_matrix_I(matrix_I):
                 output[ind_r,ind_c] = matrix_I[ind_r,ind_c]
     return output            
 
-
-# In[6]:
-
-
-# data_pop = pd.read_csv('processed_population.csv')
-# dic_pop_new = {}
-# for ind in data_pop.index: 
-# 	# getting name of comm and do regular expressions
-# 	city = data_pop['Region'][ind]
-# 	processed_city = city.strip().lower().replace(' ','')
-# 	prefixex = ['cityof','losangeles-','unincorporated-']
-# 	for word in prefixex:
-# 		name_of_community = processed_city.replace(word,'')
-# 	# get day
-# 	pop = data_pop['Population'][ind]
-# 	dic_pop_new[name_of_community]=pop
-        
-# def get_population_vec(list_communities):
-# 	output_list = []
-# 	#dic_pop = {}
-# 		#print(pop,type(pop))
-# 	for comm_obj in list_communities:    
-# 		if comm_obj.name in dic_pop_new.keys():
-# 			output_list.append(dic_pop_new[name_of_community])
-# 		else:
-# 			print(comm_obj.name)            
-# 	if len(output_list) == len(list_communities):
-# 		output = np.asarray(output_list)
-# 	else:
-# 		return -1
-# 	return output  
-
-
-# In[7]:
-
-
-# def find_intial_non_zero_val_Infection(ref_matrix_I):
-# # output : non-zero values for each city    
-# 	vec = np.zeros((ref_matrix_I.shape[0],))
-# 	for city in range(ref_matrix_I.shape[0]):
-# 		for time in range(ref_matrix_I.shape[1]):
-# 			if ref_matrix_I[city,time] != 0:
-# 				vec[city] = ref_matrix_I[city,time]
-# 				break
-# 	return vec
-
-# def function_for_solver(z,*data):
-#     next_I,curr_I,sigma,N = data
-#     beta = z
-    
-#     F = 0
-#     F = ((1/(beta-sigma))*np.log(next_I/((beta-sigma)-beta*next_I/N))) -  ((1/(beta-sigma))*np.log(curr_I/((beta-sigma)-beta*curr_I/N))) - 1.0 # equations
-
-#     return F   
 def solve_beta_for_single_time_polynomial(next_I,curr_I,sigma,N,prev_beta):      
     if curr_I != 0:
         output = (next_I - curr_I+sigma*curr_I)/(curr_I-(1/N)*curr_I**2)
@@ -304,12 +164,6 @@ def solve_beta_for_single_time_exponential(next_I,curr_I,sigma,N,prev_beta):
             output = solve_beta_for_single_time_polynomial(next_I,curr_I,sigma,N,prev_beta)
     else:
         output = solve_beta_for_single_time_polynomial(next_I,curr_I,sigma,N,prev_beta)	
-#################################
-# 	data = (next_I,curr_I,sigma,N)
-# 	beta_guess = .2
-# 	output = fsolve(function_for_solver, beta_guess, args=data)
-#################################
-# 	output = solve_beta_for_single_time_polynomial(next_I,curr_I,sigma,N,prev_beta)	
     return output 
 
     
@@ -328,9 +182,6 @@ def calculating_beta(matrix_I,vec_population,sigma,Today_date, name_top_selected
                 matrix_beta[city,time] = max(0,solve_beta_for_single_time_polynomial(matrix_I[city,time+1],matrix_I[city,time],sigma,vec_population[city],prev_beta) )
             prev_beta = matrix_beta[city,time]
             R[city,time] = matrix_beta[city,time] / sigma
-
-    clear_output(wait=True) 
-# 	print("DONJE")
 
     return matrix_beta
 
@@ -357,33 +208,11 @@ def calculating_R_marigins(matrix_I,vec_population,sigma,Today_date, name_top_se
     D = np.zeros((r,c-1))
     for city in range(r):
         for time in range(c-1):
-            #clear_output(wait=True)             
             #print("Margin for city",city)
             margin = calculate_R_margin_for_single_time(matrix_I[city,time+1],matrix_I[city,time],sigma,vec_population[city]) 
             D[city,time],U[city,time] = margin[0],margin[1]
-
-
-# 	clear_output(wait=True) 
-# 	print("Margin len",D.shape[1],U.shape[1] )
-
     return D,U
     
-
-
-# ### Load CSV File
-
-# states1 = pd.read_csv('data/raw/Covid-19.csv', usecols=[0,1,4],
-#                      index_col=['Region', 'Time Stamp'],
-#                      parse_dates=['Time Stamp'],
-#                      squeeze=True).sort_index()
-# states = states1.groupby(['Region', 'Time Stamp']).sum()
-# states.head()
-#print(states['Melrose']['2020-03-16'])
-
-
-# ### Create DataFrame 
-# Make DataFrame for R
-
 def create_dataframe_for_R(ind_city,matrix_beta,sigma,U,D):  
     r,c = matrix_beta.shape[0],matrix_beta.shape[1]
     data={}
@@ -415,7 +244,6 @@ def create_dataframe_for_Risk(ind_city,risk,U,D):
 def plot_rt(result, ax, state_name):
     
     ax.set_title(str(state_name))
-    
     # Colors
     ABOVE = [1,0,0]
     MIDDLE = [1,1,1]
@@ -539,22 +367,6 @@ def pdf_k_uniform(x,min_k_value,max_k_value):
         return 1/(max_k_value-min_k_value)
     return 0
 
-# def convert_into_input_argument_pdf_k(x,next_I,curr_I,N,r):
-# 	return (N/curr_I)*(1-(1+((next_I-curr_I)/curr_I)/x)/r)
-# def pdf_R_for_single_r(next_I,curr_I,N,r,mean_sigma,var_sigma,min_k_value,max_k_value):
-# 	#range_sigma = np.arange(1/(7.5+4.5),1/(7.5-4.5),0.01)
-# 	range_sigma = np.arange(-200,200,0.01)    
-# 	input_argument_pdf_k = list(map(lambda x:convert_into_input_argument_pdf_k(x,next_I,curr_I,N,r),range_sigma))
-# 	val_pdf_k = list(map(lambda x:pdf_k(x,min_k_value,max_k_value),input_argument_pdf_k))
-# 	val_pdf_sigma = list(map(lambda x:pdf_normal(x,mean_sigma,var_sigma),range_sigma))
-# 	coeff = list(map(lambda x:(N/curr_I)-convert_into_input_argument_pdf_k(x,next_I,curr_I,N,r),range_sigma))
-# 	print("INPUT K",input_argument_pdf_k)
-# 	#plt.plot(range(len(range_sigma)),val_pdf_sigma)
-# 	#plt.plot(range(len(range_sigma)),val_pdf_k,'r')
-# 	#plt.plot(range(len(range_sigma)),coeff,'g')
-# 	#plt.show()
-# 	#import pdb;pdb.set_trace()
-
 def pdf_R_for_single_r(next_I,curr_I,N,r,mean_D,var_D,min_k_value,max_k_value):
     #range_sigma = np.arange(1/(7.5+4.5),1/(7.5-4.5),0.01)
     a , b = curr_I/N , (next_I-curr_I)/curr_I   
@@ -572,7 +384,6 @@ def pdf_R_for_single_r(next_I,curr_I,N,r,mean_D,var_D,min_k_value,max_k_value):
     #plt.plot(range(len(range_sigma)),coeff,'g')
     #plt.show()
     #import pdb;pdb.set_trace()
-    
     
     #print("f_R(r)",r,sum(np.multiply(np.multiply(coeff,val_pdf_sigma),val_pdf_k))*step_z) 
     #print("f_R(r)")    
@@ -599,8 +410,6 @@ def cal_delta(next_I,curr_I,N,ave_r,desired_prob,mean_sigma,var_sigma,min_k_valu
 #             prob = pdf_R_for_single_r(next_I,curr_I,N,r,mean_D,var_D,min_k_value,max_k_value)*dr
 #             index +=1
 #         else:
-        
-
         r = ave_r + ind_right*dr
         prob += pdf_R_for_single_r(next_I,curr_I,N,r,mean_D,var_D,min_k_value,max_k_value)*dr
         ind_right += 1
@@ -638,10 +447,6 @@ def pdf_R_both_D_and_k_normal(r,next_I,curr_I,N,sigma,mu_D,var_D,mu_k,var_k):
     #f1 = -beta_1*var_c*(np.exp(-((k2-mu_c)**2)/(2*var_c))) + (beta_1*mu_c+beta_0)*np.sqrt(2*np.pi*var_c)*norm.cdf((k2-mu_c)/np.sqrt(var_c))
     #f2 = -beta_1*var_c*(np.exp(-((k2-mu_c)**2)/(2*var_c))) + (-beta_1*mu_c-beta_0)*np.sqrt(2*np.pi*var_c)*(1-norm.cdf((k2-mu_c)/np.sqrt(var_c)))
     #return (f1+f2)   
-
-
-# In[19]:
-
 
 def cal_delta_closed_form_pdf_R(next_I,curr_I,N,ave_r,desired_prob,mean_D,var_D,mean_k,var_k):
     if ave_r == 0:
@@ -788,7 +593,6 @@ def cal_delta_risk(next_I,curr_I,N,ave_r,desired_prob,mean_sigma,var_sigma,min_k
 #             index +=1
 #         else:
         
-
         r = ave_r + ind_right*dr
         prob += 2*pdf_Risk_for_single_r(next_I,curr_I,N,r,mean_D,var_D,min_k_value,max_k_value)*dr
         
@@ -796,7 +600,6 @@ def cal_delta_risk(next_I,curr_I,N,ave_r,desired_prob,mean_sigma,var_sigma,min_k
             return .5*ave_r,2*ave_r
         ind_right += 1
         print("prob",prob)
-        
         counter_exceed +=1
 #         if ave_r - ind_left*dr > 0:
 #             r = ave_r - ind_left*dr
@@ -1037,11 +840,8 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                         else:
                             communiuty_obj.confirmed_daily[index] = communiuty_obj.confirmed[index] - communiuty_obj.confirmed[index-1]	
 
-#=================================================================== 
-#===================================================================                    
-#====    create CSV file for risk scores of all communities ========
-#===================================================================
-#=================================================================== 
+                
+""" create CSV file for risk scores of all communities """
         if generate_CSV:
             list_selected_communities=[]
             for communiuty_obj in list_communities:
@@ -1064,19 +864,8 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             hist_thresholds = [-1.0,.1,1,2]
             update_csv_file(dict_comm_for_update_csv,hist_thresholds)
             return 0
-#=================================================================== 
-#===================================================================                    
-#=   END OF: create CSV file for risk scores of all communities ====
-#===================================================================
-#=================================================================== 
         
-        
-        
-#================================================================
-#================================================================
-#===============     entire LA county   =========================
-#================================================================
-#================================================================
+"""===============     entire LA county   ========================="""
         if Whole_LAcounty == True:        
             type_plot ='daily'
             all_communities_available_in_pop_list = list_communities
@@ -1087,20 +876,18 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             summed_over_all_comm_matrix_I = np.reshape(all_communities_matrix_I.sum(axis=0),(1,all_communities_matrix_I.shape[1]))
             summed_over_all_comm_matrix_I = mov_ave(summed_over_all_comm_matrix_I,moving_average_days,100)
             
-#=================    LA Risk scores computation   =====================
+"""=================    LA Risk scores computation   ====================="""
             if show_Risk == True:
                 risk=calculating_risk_for_single_community(summed_over_all_comm_matrix_I[0,:],sum_population_all_communities[0],sigma,average_k)
-                #clear_output(wait=True)
                 plt.figure()
                 plt.plot(np.arange(len(risk)),risk,'o-r')
                 plt.ylabel('Risk Score')
                 plt.xlabel('Number of Days Since March 16, 2020')
                 plt.title('Whole LA County')
-
-                #    LA   prediction for Risk scores    ===============              
+                #    LA   prediction for Risk scores            
                 if show_risk_prediction == True: 
-# 					prediction_for_single_community_WITH_APPENDING_PRED_orignal(risk, 28,10,1)#beta_lacounty[0,:]
-# 					#plt.plot(np.arange(len(risk),len(risk)+len(pred_v)),pred_v,'o--')
+ 					# prediction_for_single_community_WITH_APPENDING_PRED_orignal(risk, 28,10,1)#beta_lacounty[0,:]
+ 					# plt.plot(np.arange(len(risk),len(risk)+len(pred_v)),pred_v,'o--')
                     output_pred =[]
                     past_num_days_to_pred = 30
                     num_days_for_considering_reg_in = Today_date-16-1 # or fix 83
@@ -1108,22 +895,18 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                         output_pred.append(max(0,pred_R('Whole LA county',risk[np.newaxis,:] ,num_days_for_considering_reg_in-past_num_days_to_pred+day_to_pred,7,1)))
                     plt.plot(np.arange(len(risk)-past_num_days_to_pred,len(risk)),output_pred,'o--')
                     plt.legend(["Estimation", "Prediction(based on last 7 days)"])
-                    #clear_output(wait=True)
                     return 0
                 else:
                     plt.legend(["Estimation"])
-                    #clear_output(wait=True)
                     return 0
                 
-            #========      LA computing CI for Rt    ==================           
+"""=================    LA computing CI for Rt   ====================="""      
             #D_lacounty,U_lacounty=beta_lacounty,beta_lacounty    
             average_k = (min_k_value+max_k_value)/2
             summed_over_all_comm_matrix_I = (average_k)*summed_over_all_comm_matrix_I            
             beta_lacounty = calculating_beta(summed_over_all_comm_matrix_I,sum_population_all_communities,sigma,Today_date, all_communities_available_in_pop_list,'exact')
             #average_k = (min_k_value+max_k_value)/2          
             risk=calculating_risk_for_single_community(summed_over_all_comm_matrix_I[0,:],sum_population_all_communities[0],sigma,1.0)
-
-
    
             margin=np.zeros((2,beta_lacounty.shape[1]))
             ave_r=np.zeros((1,beta_lacounty.shape[1]))
@@ -1141,7 +924,6 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
 #################################
                 print(risk.shape)
                 #return 0        
-
                 ave_r[0,ind_cont_rate] = calculate_ave_RiskScore(next_I,curr_I,N,mean_D,var_D,min_k_value,max_k_value)
                 #print(ave_r)
 
@@ -1183,11 +965,7 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
             ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
 
-#================================================================
-#================================================================
-#==============    for selected COMMUNITIES  ==================== 
-#================================================================
-#================================================================
+"""===============     for selected COMMUNITIES   ========================="""
         else:     
             list_selected_communities=[]
             for comm in list_communities:
@@ -1206,7 +984,7 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             # find intial I for each city because the derivation equations are sensirtive to INTIAL values
             # initial_infection_for_SIR = find_intial_non_zero_val_Infection(ref_matrix_I)
             # plot_SIR(matrix_beta,sigma,vec_population, initial_infection_for_SIR, time_to_show,name_top_selected_communities)           
-#===========       COMMUNITIES Risk scores computation   =================
+"""===========       COMMUNITIES Risk scores computation   ================="""
             if show_Risk == True:       
                 for ind in range(ref_matrix_I.shape[0]):
                     risk_comm=calculating_risk_for_single_community(ref_matrix_I[ind,:],1.0*vec_population[ind],sigma,average_k)
@@ -1217,9 +995,8 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                     plt.ylabel('Risk Score')
                     plt.xlabel('Number of Days Since March 16, 2020')
                     plt.title(list_selected_communities[ind].actual_name)
-#=============     COMMUNITIES prediction for Risk scores    =============
+"""=============     COMMUNITIES prediction for Risk scores    ============="""
                     if show_risk_prediction == True:
-                
                         output_pred =[]
                         past_num_days_to_pred = 30
                         num_days_for_considering_reg_in = Today_date-16-1 # or fix 83
@@ -1227,19 +1004,16 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                             output_pred.append(max(0,pred_R(list_selected_communities[ind].actual_name,risk_comm[np.newaxis,:] ,num_days_for_considering_reg_in-past_num_days_to_pred+day_to_pred,7,1)))
                         plt.plot(np.arange(len(risk_comm)-past_num_days_to_pred,len(risk_comm)),output_pred,'o--')
                         plt.legend(["Estimation", "Prediction(based on last 7 days)"])
-                        clear_output(wait=True)
                     else:
                         plt.legend(["Estimation"])    
-                        clear_output(wait=True)
                 return 0    
-#=============      COMMUNITIES computing CI for Rt    ==================
+"""=============      COMMUNITIES computing CI for Rt    =================="""
 
             ######D,U = calculating_R_marigins(ref_matrix_I,vec_population,sigma,Today_date, name_top_selected_communities)
             #D,U = matrix_beta,matrix_beta
             average_k = (min_k_value+max_k_value)/2
             #ref_matrix_I = average_k * ref_matrix_I
             
-
             matrix_beta = calculating_beta(ref_matrix_I,vec_population,sigma,Today_date, name_top_selected_communities,'exact')
             risk_all_comm = np.zeros_like(matrix_beta) 
            
@@ -1248,11 +1022,9 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                 print("City",ind_city)              
                 risk_comm=calculating_risk_for_single_community(ref_matrix_I[ind_city,:],1.0*vec_population[ind_city],sigma,1.0)
                 risk_all_comm[ind_city,:] = risk_comm
-                
 # 				if ind_city==1:
 # 					print(risk_comm)
 # 					return 0  
-        
                 #risk_comm = np.zeros((matrix_beta.shape[1]-1,))
                 
                 margin=np.zeros((2,matrix_beta.shape[1]))
@@ -1315,4 +1087,3 @@ if __name__ == "__main__":
     # SIR model general settings
     sigma = 1.0/7.5 # 5.2
     main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_days,Whole_LAcounty,top_k_community_with_highest_confirmed,display_mode, 16 + number_of_days_passed_from_16th,future_day_to_be_predicted,criteria,sigma)
-        
