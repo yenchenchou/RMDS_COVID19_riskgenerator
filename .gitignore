@@ -1,4 +1,5 @@
 .DS_Store
+/scr/.DS_Store
 /data/external/*
 /data/processed/*
 /data/raw/*
