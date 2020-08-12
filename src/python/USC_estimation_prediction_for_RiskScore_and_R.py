@@ -28,7 +28,7 @@ from matplotlib.colors import hsv_to_rgb
 from itertools import combinations
 import pandas as pd
 from scipy.optimize import fsolve
-
+import datetime
 from gekko import GEKKO
 from matplotlib.dates import date2num, num2date
 from matplotlib import dates as mdates
@@ -741,7 +741,6 @@ def decide_level(val,thresholds):
     elif thresholds[1]<val and val<=thresholds[2]:
         #import pdb;pdb.set_trace()
         return 1
-    
     elif thresholds[2]<val and val<=thresholds[3]:
         return 2
     #elif thresholds[2]<val and val<=thresholds[3]:
@@ -749,22 +748,24 @@ def decide_level(val,thresholds):
         return 3
 
 def update_csv_file(dict_comm,thresholds):
-#     with open('Covid-19-density.csv', "r") as f:
-#         data_map = pd.read_csv(f)
     data_map = pd.read_csv('data/raw/Covid-19-density.csv')
     data_map['Date'] = pd.to_datetime(data_map['Time Stamp'], format='%m-%d-%Y')
     data_map['Date-Start'] = '03-16-2020'
     data_map['Date-Start'] = pd.to_datetime(data_map['Date-Start'], format='%m-%d-%Y')
     data_map['Time-Index'] = (data_map['Date']-data_map['Date-Start']).dt.days
-    data_map['Risk-Score'] = -1.0
-    data_map['Risk-Level'] = -1
+    data_map['RiskScore'] = -1.0
+    data_map['RiskLevel'] = -1
     for ind in data_map.index: 
         # getting name of comm and do regular expressions
+       
         city = data_map['Region'][ind]
         processed_city = city.strip().lower().replace(' ','')
+        '''
         prefixex = ['cityof','losangeles-','unincorporated-']
         for word in prefixex:
             name_of_community = processed_city.replace(word,'')
+        '''
+        name_of_community = processed_city
         # get day
         day = data_map['Time-Index'][ind]
         #print(day,type(day))
@@ -784,22 +785,17 @@ def update_csv_file(dict_comm,thresholds):
             #curr_comm.append(comm_obj)
             ####not_found_list = ['avalon','parklabrea','baldwinpark','bassett']
             if get_population_vec([comm_obj])!=-1: 
-                #print(comm_obj.name)
-                #print(comm_obj.confirmed_daily.shape)
-                #print(comm_obj.confirmed_daily)
-                #print(comm_obj.infection_rate.shape)
-                #print(get_population_vec([comm_obj]))
-                #print(comm_obj.risk.shape)
-                data_map['Risk-Score'][ind] = comm_obj.risk[day]
-                data_map['Risk-Level'][ind] = decide_level(data_map['Risk-Score'][ind],thresholds)
+                data_map['RiskScore'][ind] = comm_obj.risk[day]
+                data_map['RiskLevel'][ind] = decide_level(data_map['RiskScore'][ind],thresholds)
         #- begining_date).dt.days 
         #print(day,type(day))
         #ind_day = row['Time Stamp'] - begining_date
         #print(ind_day,row['Time Stamp'])
     #print(data_map[data_map['Risk-Level']==3])
-    print("num of missing",len(data_map.loc[(data_map['Risk-Level'] == -1) & (data_map['Time-Index']==126)].Region.unique()))
-    path = './data/processed/USC_covid19.csv'
-    data_map.to_csv(path, mode='w',columns = ['TimeStamp','Region','Latitude','Longitude','RiskScore','RiskLevel'])
+    print("num of missing",len(data_map.loc[(data_map['RiskLevel'] == -1) & (data_map['Time-Index']==126)].Region.unique()))
+    path = './data/processed/USC_community_risk.csv'
+    data_map['TimeStamp'] =  pd.to_datetime(data_map['Date'].dt.strftime('%Y-%m-%d'))
+    data_map.to_csv(path, mode='w',columns = ['TimeStamp','Region','Latitude','Longitude','RiskScore','RiskLevel'],index=False)
     #print(data_map)
 
 
@@ -812,7 +808,6 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
         # record all data by creating community classes and fill out their variables 
         for day in sorted([int(k) for k in data.keys()]):
             if day < Today_date :
-                #print(day, Today_date )
                 for i in range(len(data[str(day)])):
                     actual_name_of_community = 	data[str(day)][i][0].strip()
                     name_of_community = data[str(day)][i][0].strip().lower().replace(' ','')
@@ -839,9 +834,8 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                             communiuty_obj.confirmed_daily[index] = communiuty_obj.confirmed[index]
                         else:
                             communiuty_obj.confirmed_daily[index] = communiuty_obj.confirmed[index] - communiuty_obj.confirmed[index-1]	
-
-                
-""" create CSV file for risk scores of all communities """
+             
+        """ create CSV file for risk scores of all communities """
         if generate_CSV:
             list_selected_communities=[]
             for communiuty_obj in list_communities:
@@ -865,7 +859,7 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             update_csv_file(dict_comm_for_update_csv,hist_thresholds)
             return 0
         
-"""===============     entire LA county   ========================="""
+        """===============     entire LA county   ========================="""
         if Whole_LAcounty == True:        
             type_plot ='daily'
             all_communities_available_in_pop_list = list_communities
@@ -876,7 +870,7 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             summed_over_all_comm_matrix_I = np.reshape(all_communities_matrix_I.sum(axis=0),(1,all_communities_matrix_I.shape[1]))
             summed_over_all_comm_matrix_I = mov_ave(summed_over_all_comm_matrix_I,moving_average_days,100)
             
-"""=================    LA Risk scores computation   ====================="""
+            """=================    LA Risk scores computation   ====================="""
             if show_Risk == True:
                 risk=calculating_risk_for_single_community(summed_over_all_comm_matrix_I[0,:],sum_population_all_communities[0],sigma,average_k)
                 plt.figure()
@@ -900,7 +894,7 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                     plt.legend(["Estimation"])
                     return 0
                 
-"""=================    LA computing CI for Rt   ====================="""      
+            """=================    LA computing CI for Rt   ====================="""      
             #D_lacounty,U_lacounty=beta_lacounty,beta_lacounty    
             average_k = (min_k_value+max_k_value)/2
             summed_over_all_comm_matrix_I = (average_k)*summed_over_all_comm_matrix_I            
@@ -965,7 +959,7 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
             ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
 
-"""===============     for selected COMMUNITIES   ========================="""
+            """===============     for selected COMMUNITIES   ========================="""
         else:     
             list_selected_communities=[]
             for comm in list_communities:
@@ -984,18 +978,17 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             # find intial I for each city because the derivation equations are sensirtive to INTIAL values
             # initial_infection_for_SIR = find_intial_non_zero_val_Infection(ref_matrix_I)
             # plot_SIR(matrix_beta,sigma,vec_population, initial_infection_for_SIR, time_to_show,name_top_selected_communities)           
-"""===========       COMMUNITIES Risk scores computation   ================="""
+            """===========       COMMUNITIES Risk scores computation   ================="""
             if show_Risk == True:       
                 for ind in range(ref_matrix_I.shape[0]):
                     risk_comm=calculating_risk_for_single_community(ref_matrix_I[ind,:],1.0*vec_population[ind],sigma,average_k)
                     print("city\n",ind)
-                    clear_output(wait=True)
                     plt.figure()
                     plt.plot(np.arange(len(risk_comm)),risk_comm,'o-r')
                     plt.ylabel('Risk Score')
                     plt.xlabel('Number of Days Since March 16, 2020')
                     plt.title(list_selected_communities[ind].actual_name)
-"""=============     COMMUNITIES prediction for Risk scores    ============="""
+                    """=============     COMMUNITIES prediction for Risk scores    ============="""
                     if show_risk_prediction == True:
                         output_pred =[]
                         past_num_days_to_pred = 30
@@ -1007,8 +1000,7 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
                     else:
                         plt.legend(["Estimation"])    
                 return 0    
-"""=============      COMMUNITIES computing CI for Rt    =================="""
-
+            """=============      COMMUNITIES computing CI for Rt    =================="""
             ######D,U = calculating_R_marigins(ref_matrix_I,vec_population,sigma,Today_date, name_top_selected_communities)
             #D,U = matrix_beta,matrix_beta
             average_k = (min_k_value+max_k_value)/2
@@ -1070,6 +1062,20 @@ def main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_da
             # fig.tight_layout()
             # fig.set_facecolor('w')
             # return risk_all_comm,U,D
+
+def get_the_latest_day():
+    # var_day = 160
+    # number_of_days_passed_from_16th = var_day - 16 + 1
+    # Today_date = 16 + number_of_days_passed_from_16th
+    df = pd.read_csv('data/raw/Covid-19-density.csv')
+    latest_date_str = df['Time Stamp'].max() 
+    earliest_date_str = df['Time Stamp'].min() 
+    earliest_date = datetime.datetime.strptime(earliest_date_str, '%m-%d-%Y').date() 
+    latest_date = datetime.datetime.strptime(latest_date_str, '%m-%d-%Y').date() 
+    diff = latest_date - earliest_date 
+    return diff.days + 20
+    
+
         
 if __name__ == "__main__":
     generate_CSV         = True    # True: generate risk CSV file for all communities, False: shows plots
@@ -1081,9 +1087,9 @@ if __name__ == "__main__":
     moving_average_days = 14
     # Display mode: daily or cumulative
     display_mode = 'cumulative'
-    number_of_days_passed_from_16th = 145 - 16 + 1
+    Today_date = get_the_latest_day()
     future_day_to_be_predicted = 1
     criteria = 'train'
     # SIR model general settings
     sigma = 1.0/7.5 # 5.2
-    main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_days,Whole_LAcounty,top_k_community_with_highest_confirmed,display_mode, 16 + number_of_days_passed_from_16th,future_day_to_be_predicted,criteria,sigma)
+    main(generate_CSV,average_k,show_risk_prediction,show_Risk,moving_average_days,Whole_LAcounty,top_k_community_with_highest_confirmed,display_mode, Today_date,future_day_to_be_predicted,criteria,sigma)
