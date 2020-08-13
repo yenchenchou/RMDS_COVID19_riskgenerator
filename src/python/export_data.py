@@ -35,8 +35,8 @@ if __name__ == "__main__":
 
 
     print("Start getting poi data...")
-    FOLDER_PATH = "data/external/Core-USA-July2020-Release"\
-        "-CORE_POI-2020_06-2020-07-13"
+    FOLDER_PATH = "data/external/Core-USA-August2020-Release"\
+        "-CORE_POI-2020_07-2020-08-07"
     poi_getter = POI(FOLDER_PATH)
     print("Getting core POI data, it may take up to 1 min...")
     poi_getter.read_mapper()

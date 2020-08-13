@@ -234,7 +234,8 @@ calculate_risk_score_poi <- function(poi = poi,
                                      poi_area = poi_area,
                                      open_hours = open_hours,
                                      daily = daily,
-                                     hourly = hourly) {
+                                     hourly = hourly,
+                                     density_table = density_table) {
   
   # Joining the data
   risk_poi <- open_hours %>%
@@ -275,12 +276,14 @@ calculate_risk_score_poi <- function(poi = poi,
     # The final risk score is the percentile rank of previous three percentile ranks added together
     # Higher value means relatively more risk
     # This is a RELATIVE risk score
+    left_join(density_table, by = c("community")) %>% 
     mutate(area_per_capita_perc_rank = 1 - percent_rank(area_per_capita),
            prob_perc_rank = percent_rank(prob),
            cv_perc_rank = percent_rank(cv),
            peak_perc_rank = percent_rank(peak),
            time_density_perc_rank = percent_rank(cv_perc_rank + peak_perc_rank),
-           risk_score = percent_rank(area_per_capita_perc_rank + prob_perc_rank + time_density_perc_rank))
+           people_density_perc_rank = percent_rank(Density),
+           risk_score = percent_rank(area_per_capita_perc_rank + prob_perc_rank + time_density_perc_rank + people_density_perc_rank))
   
   
   # Reorder columns, add risk level and update date
@@ -322,16 +325,15 @@ calculate_risk_score_community <- function(risk_poi){
 #' @return the final risk score dataframe 
 #' @import tidyverse
 #' @export
-weekday_to_date <- function(risk, update_date, case_death_table){
+weekday_match <- function(risk, case_death_table, new_update_date){
   risk <- risk %>% 
+    filter(weekday == new_update_date) %>% 
     mutate(risk_score = ifelse(is.na(risk_score), 0, risk_score),
-           update_date = update_date,
-           day = as.numeric(factor(weekday, level = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))) - 1,
-           day = update_date + day) %>%
+           day = new_update_date) %>%
     left_join((clean_gov_data(case_death_table) %>% 
                  select(geo_merge, cases_final)),
               by = c("community" = "geo_merge")) %>% 
-    select(-weekday, -update_date)
+    select(-weekday)
   return(risk)
 }
 
@@ -351,7 +353,7 @@ weekday_to_date <- function(risk, update_date, case_death_table){
 #' @export
 risk_score <- function(file_1, file_2, file_3,
                        poi, poi_area, open_hours,
-                       case_death_table, testing_table) {
+                       case_death_table, testing_table, density_table) {
   print("Start calculating risk score")
   print("Processing daily visits data... may take a few minutes")
   daily <- daily_process(file_1, file_2, file_3)
@@ -360,7 +362,7 @@ risk_score <- function(file_1, file_2, file_3,
   print("Calculating infection rate and matching each POI with corresponding infection rate")
   poi_extended <- match_infection_rate(poi, case_death_table, testing_table)
   print("Calculating poi risk scores")
-  risk_poi <- calculate_risk_score_poi(poi_extended, poi_area, open_hours, daily, hourly)
+  risk_poi <- calculate_risk_score_poi(poi_extended, poi_area, open_hours, daily, hourly, density_table)
   print("Calculating community risk scores")
   risk_community <- calculate_risk_score_community(risk_poi)
   print("Complete calculation!")
@@ -377,27 +379,32 @@ poi_area <- read_csv('data/processed/RMDS_poi_area_square_feet.csv', col_types =
 open_hours <- read_csv('data/processed/RMDS_open_hours.csv', col_types = cols())
 case_death_table <- read_csv('data/external/LA_County_Covid19_CSA_case_death_table.csv', col_types = cols())
 testing_table <- read_csv('data/external/LA_County_Covid19_CSA_testing_table.csv', col_types = cols())
-file_1_clean <- read_csv('data/processed/pattern-0722.csv', col_types = cols())
-file_2_clean <- read_csv('data/processed/pattern-0729.csv', col_types = cols())
-file_3_clean <- read_csv('data/processed/pattern-0805.csv', col_types = cols())
+density_table <- read_csv('data/raw/Covid-19-density.csv', col_types = cols())
+file_1_clean <- read_csv('data/processed/pattern-0729.csv', col_types = cols())
+file_2_clean <- read_csv('data/processed/pattern-0805.csv', col_types = cols())
+file_3_clean <- read_csv('data/processed/pattern-0812.csv', col_types = cols())
 print('finish loading required data')
 
 # calculate risk score ----------------------------------------------------
+new_update_date <- substring(weekdays(Sys.Date()), 1, 3)
 
-update_date <- max(max(file_1_clean$date_range_end),
-                   max(file_2_clean$date_range_end),
-                   max(file_3_clean$date_range_end)) %>% 
-  as.Date()
+density_table <- density_table %>% 
+  mutate(Timestamp = as.Date(`Time Stamp`, format="%m-%d-%y")) %>% 
+  filter(Timestamp == max(Timestamp)) %>% 
+  select(Region, Density) %>% 
+  transmute(community = Region, Density = Density)
+
 
 risk <- risk_score(file_1_clean, file_2_clean, file_3_clean,
                    poi, poi_area, open_hours,
-                   case_death_table, testing_table) 
+                   case_death_table, testing_table, density_table) 
 
-risk_poi <- weekday_to_date(risk$risk_poi, update_date, case_death_table)
-risk_community <- weekday_to_date(risk$risk_community, update_date, case_death_table) %>% 
+# match with the weekday to make calculation
+risk_poi <- weekday_match(risk$risk_poi, case_death_table, new_update_date) %>% select(-day)
+risk_community <- weekday_match(risk$risk_community, case_death_table, new_update_date) %>% 
   select(day,community,risk_score, risk_level)
 
 print('Saving risk scores to files')
-write_csv(risk_poi ,paste0('data/result/risk_poi-',update_date,'.csv'))
-write_csv(risk_community ,paste0('data/result/risk_community-',update_date,'.csv'))
+write_csv(risk_poi ,paste0('data/result/risk_poi-',toString(Sys.Date()),'.csv'))
+write_csv(risk_community ,paste0('data/result/risk_community-',toString(Sys.Date()),'.csv'))
 print("Completed!")
