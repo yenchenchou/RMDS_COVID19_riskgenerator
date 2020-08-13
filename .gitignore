@@ -2,5 +2,6 @@
 /src/.DS_Store
 /src/python/health_gov_cleaner.py
 /data/external/*
+/data/src/R/.Rhistory
 /data/processed/*
 /data/raw/*
