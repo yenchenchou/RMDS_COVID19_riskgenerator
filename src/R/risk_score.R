@@ -402,7 +402,7 @@ risk <- risk_score(file_1_clean, file_2_clean, file_3_clean,
 # match with the weekday to make calculation
 risk_poi <- weekday_match(risk$risk_poi, case_death_table, new_update_date) %>% select(-day)
 risk_community <- weekday_match(risk$risk_community, case_death_table, new_update_date) %>% 
-  select(day,community,risk_score, risk_level)
+  select(community,risk_score, risk_level)
 
 print('Saving risk scores to files')
 write_csv(risk_poi ,paste0('data/result/risk_poi-',toString(Sys.Date()),'.csv'))
