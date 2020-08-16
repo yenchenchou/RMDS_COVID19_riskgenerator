@@ -86,25 +86,3 @@ def get_poi(folder_path):
         df = pd.concat([df, df_tmp], axis=0, ignore_index=True)
     return df  
 df_original = get_poi(folder_path)
-
-# %%
-df_original.head()
-
-# %%
-df_original["postal_code"].dtypes
-
-# %%
-with open("data/internal/RMDS_zipcode_mapper.json") as file:
-    mapper_dict = json.load(file)
-    mapper_dict = {int(key):val for key, val in mapper_dict.items()}
-mapper_dict
-# %%
-la_county = []
-for idx, val in enumerate(df_original["postal_code"]):
-    if val in mapper_dict:
-        la_county.append(idx)
-
-# %%
-len(la_county)
-
-# %%

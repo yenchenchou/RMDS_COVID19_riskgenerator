@@ -1,7 +1,0 @@
-numpy==1.19.1
-pandas==0.23.0
-requests==2.24.0
-bs4==0.0.1
-gekko==0.2.7
-scipy==1.2.1
-matplotlib==3.3.0

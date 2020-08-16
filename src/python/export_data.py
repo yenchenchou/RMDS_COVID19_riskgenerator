@@ -6,6 +6,7 @@ import sys
 
 import pandas as pd
 
+from covid_case_getter import WebCsvDownload
 from core_poi_getter import POI
 from postal_community_mapper import ZipCommunityMapper
 from poi_area_getter import POIArea
@@ -13,11 +14,19 @@ from open_store_getter import OpenHour
 from weekly_pattern_getter import WeekPattern
 
 
+
 if __name__ == "__main__":
     
     WEEK1 = sys.argv[1]
     WEEK2 = sys.argv[2]
     WEEK3 = sys.argv[3]
+    CASE_URL = "https://lacdph.shinyapps.io/"\
+        "covid19_surveillance_dashboard/_w_fc870600"\
+        "/session/6a3aec46f8bffc24c77848c9177e8c32/download/download2?w=fc870600"
+    TEST_URL = "https://lacdph.shinyapps.io/"\
+        "covid19_surveillance_dashboard/_w_8a7ea990"\
+            "/session/305b5feaaba1a6cd7fdd90b02b0ce8b9/download/download4?w=8a7ea990"
+
 
     if os.path.isfile("data/internal/RMDS_zipcode_mapper.json"):
         print("RMDS_zipcode_mapper.json already exists")
@@ -32,6 +41,15 @@ if __name__ == "__main__":
         zip_community_mapper.save_json()
         print("Complete saving zipcode_mapper!")
         print("\n")
+
+
+    print("Start getting LA County COVID-19 cases and death data...")
+    case_crawler = WebCsvDownload(CASE_URL)
+    test_crawler = WebCsvDownload(TEST_URL)
+    case_crawler.save_csv()
+    test_crawler.save_csv()
+    print("Complete saving LA County COVID-19 cases and death data!")
+    print("\n")
 
 
     print("Start getting poi data...")
