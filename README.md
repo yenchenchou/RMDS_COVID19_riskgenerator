@@ -24,10 +24,9 @@ A total of 7 files need to download (Don't worry, we have example data for you s
     ![poi](data/internal/image/poi.png) 
     * Third party precalculated data saved in SafeGraph.com:
     * **POI area square foot data**: Need to download from AWS CLI (stored in S3) (5)
-    
-    ```aws s3 cp s3://sg-c19-response/geo-supplement/May2020Release/SafeGraphPlacesGeoSupplementSquareFeet.csv.gz <your_local_path> --profile safegraphws --endpoint https://s3.wasabisys.com
     ```
-    * **infection cases and death cases** from [lacounty.gov](http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/)
+    aws s3 cp s3://sg-c19-response/geo-supplement/May2020Release/SafeGraphPlacesGeoSupplementSquareFeet.csv.gz <your_local_path> --profile safegraphws --endpoint https://s3.wasabisys.com
+    ```
     * **Community Case/Death and Community Testing data**: will be downloaded as you run the script. (2)
 
 3. Check necessary dependencies in `requirements.txt` 
@@ -37,26 +36,25 @@ pip install -r requirements.txt
 4. Run the script:
 Go to the folder where you clone the files:
 
-    1. For macOS/Linux system, open terminal
+4.1 For macOS/Linux system, open terminal
 
-    ```shell
-    # make the file executable
-    chmod 755 main.sh
-    # run the shell script
-    sh main.sh
-    ```
+```shell
+# make the file executable
+chmod 755 main.sh
+# run the shell script
+sh main.sh
+```
 
-    * You will get the following data:
-
-        1. RMDS_open_hours.csv 
-        2. RMDS_poi_area_square_feet.csv
-        3. RMDS_poi.csv
-        4. RMDS_zipcode_mapper.json
-        5. pattern-<date>.csv * 3
-        6. LA_County_Covid19_CSA_case_death_table.csv
-        7. LA_County_Covid19_CSA_testing_table.csv
+4.2 You will get the following data:
+    1. RMDS_open_hours.csv 
+    2. RMDS_poi_area_square_feet.csv
+    3. RMDS_poi.csv
+    4. RMDS_zipcode_mapper.json
+    5. pattern-<date>.csv * 3
+    6. LA_County_Covid19_CSA_case_death_table.csv
+    7. LA_County_Covid19_CSA_testing_table.csv
         
-2. Get the risk score: Open R and edit the correct weekly pattern
+4.3 Get the risk score: Open R and edit the correct weekly pattern
     ![R_script](data/internal/image/R_script_shot.png)
     * You will get POI risk score and community risk score in `data/result` folder
         1. risk_poi-YYYY-MM-DD.csv
