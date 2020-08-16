@@ -15,7 +15,7 @@ The project structure is as follows:
 1. Clone the whole repository from GitHub
 
 2. Pre-Download data:
-A total of 7 files need to download (Don't worry, we have example data for you soon!). No need to unzip the file, just download and keep it original format. Store all the data into `/data/external/` folder:
+A total of 7 files, 5 need to be downloaded (Example data for you soon!). **No need to unzip the file**, just download and keep it original format. Store all the data into `/data/external/` folder:
 
     * **Data from SafeGraph.com: Need to apply an account**
     * **Consecutive 3 weeks of user patterns**: Weekly Places Patterns (1-3)

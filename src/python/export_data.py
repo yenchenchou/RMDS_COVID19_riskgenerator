@@ -48,13 +48,11 @@ if __name__ == "__main__":
     test_crawler = WebCsvDownload(TEST_URL)
     case_crawler.save_csv()
     test_crawler.save_csv()
-    print("Complete saving LA County COVID-19 cases and death data!")
     print("\n")
 
 
     print("Start getting poi data...")
-    FOLDER_PATH = "data/external/Core-USA-August2020-Release"\
-        "-CORE_POI-2020_07-2020-08-07"
+    FOLDER_PATH = "data/external/Core_POI_Folder"
     poi_getter = POI(FOLDER_PATH)
     print("Getting core POI data, it may take up to 1 min...")
     poi_getter.read_mapper()
