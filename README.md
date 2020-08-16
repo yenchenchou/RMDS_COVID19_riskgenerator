@@ -47,18 +47,18 @@ Go to the folder where you clone the files:
 
     2. You will get the following data:
 
-        1. RMDS_open_hours.csv 
-        2. RMDS_poi_area_square_feet.csv
-        3. RMDS_poi.csv
-        4. RMDS_zipcode_mapper.json
-        5. pattern-<date>.csv * 3
-        6. LA_County_Covid19_CSA_case_death_table.csv
-        7. LA_County_Covid19_CSA_testing_table.csv
+        1. **RMDS_open_hours.csv**
+        2. **RMDS_poi_area_square_feet.csv**
+        3. **RMDS_poi.csv**
+        4. **RMDS_zipcode_mapper.json**
+        5. **pattern-<date>.csv * 3**
+        6. **LA_County_Covid19_CSA_case_death_table.csv**
+        7. **LA_County_Covid19_CSA_testing_table.csv**
         
     3. Get the risk score: Open R and edit the correct weekly pattern
-    
+
         ![R_script](data/internal/image/R_script_shot.png)
         * You will get POI risk score and community risk score in `data/result` folder
-            1. risk_poi-YYYY-MM-DD.csv
-            2. risk_community-YYYY-MM-DD.csv
+            1. **risk_poi-YYYY-MM-DD.csv**
+            2. **risk_community-YYYY-MM-DD.csv**
 
