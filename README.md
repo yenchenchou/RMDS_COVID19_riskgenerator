@@ -27,7 +27,10 @@ A total of 7 files, 5 need to be downloaded (Example data for you soon!). **No n
     ```
     aws s3 cp s3://sg-c19-response/geo-supplement/May2020Release/SafeGraphPlacesGeoSupplementSquareFeet.csv.gz <your_local_path> --profile safegraphws --endpoint https://s3.wasabisys.com
     ```
-    * **Community Case/Death and Community Testing data**: will be downloaded as you run the script. (2)
+    * **Community Case/Death and Community Testing data** from [lacounty.gov](http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/):
+        * Click `[Table: Community Case/Death]`, then click download (6)
+        * Click `[Table: Community Testing]`, then click download (7)
+        ![test_death](data/internal/image/test_death.png)
 
 3. Check necessary dependencies in `requirements.txt` 
 ```

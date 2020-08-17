@@ -20,6 +20,7 @@ if __name__ == "__main__":
     WEEK1 = sys.argv[1]
     WEEK2 = sys.argv[2]
     WEEK3 = sys.argv[3]
+    SAVE_PATH = "data/processed"
     CASE_URL = "https://lacdph.shinyapps.io/"\
         "covid19_surveillance_dashboard/_w_fc870600"\
         "/session/6a3aec46f8bffc24c77848c9177e8c32/download/download2?w=fc870600"
@@ -41,14 +42,6 @@ if __name__ == "__main__":
         zip_community_mapper.save_json()
         print("Complete saving zipcode_mapper!")
         print("\n")
-
-
-    print("Start getting LA County COVID-19 cases and death data...")
-    case_crawler = WebCsvDownload(CASE_URL)
-    test_crawler = WebCsvDownload(TEST_URL)
-    case_crawler.save_csv()
-    test_crawler.save_csv()
-    print("\n")
 
 
     print("Start getting poi data...")

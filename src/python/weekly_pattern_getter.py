@@ -61,13 +61,16 @@ class WeekPattern:
     def get_all_pattern(self):
         """Get all three pattern data"""
         self.get_folders()
-        for folder in self.folder_names:
-            file_list = self.get_file_paths(folder)
-            self.df_pattern = self.get_one_pattern(file_list)
-            file_save_path = "data/processed/pattern-" + folder[-4:]
-            self.df_pattern.to_csv(file_save_path+".csv", index=False)
-            self.df_pattern = None
-            print(file_save_path, "saved!")
+        if len(self.folder_names) == 0:
+            print("All processed pattern exist")
+        else:
+            for folder in self.folder_names:
+                file_list = self.get_file_paths(folder)
+                self.df_pattern = self.get_one_pattern(file_list)
+                file_save_path = "data/processed/pattern-" + folder[-4:]
+                self.df_pattern.to_csv(file_save_path+".csv", index=False)
+                self.df_pattern = None
+                print(file_save_path, "saved!")
 
 
     def get_one_pattern(self, file_list):
@@ -108,9 +111,25 @@ class WeekPattern:
 
     def get_folders(self):
         """Get all folders for pattern data"""
+        file_names = list(os.walk("data/processed"))[0][2]
         weeks = [self.week1, self.week2, self.week3]
-        for week in weeks:
-            self.folder_names.append(os.path.join(self.folder_path, week))
+
+        for name in file_names:
+            if self.week1 in name:
+                weeks.remove(self.week1)
+                print(f"weekly pattern {self.week1} alreadly exist, skip process")
+            if self.week2 in name:
+                weeks.remove(self.week2)
+                print(f"weekly pattern {self.week2} alreadly exist, skip process")
+            if self.week3 in name:
+                weeks.remove(self.week3)
+                print(f"weekly pattern {self.week3} alreadly exist, skip process")
+        
+        if len(weeks) == 0:
+            self.folder_names = []
+        else:
+            for week in weeks:
+                self.folder_names.append(os.path.join(self.folder_path, week))
 
 
     @staticmethod
