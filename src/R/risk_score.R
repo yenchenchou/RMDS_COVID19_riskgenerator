@@ -405,6 +405,6 @@ risk_community <- weekday_match(risk$risk_community, case_death_table, new_updat
   select(community,risk_score, risk_level)
 
 print('Saving risk scores to files')
-write_csv(risk_poi ,paste0('data/result/risk_poi-',toString(Sys.Date()),'.csv'))
-write_csv(risk_community ,paste0('data/result/risk_community-',toString(Sys.Date()),'.csv'))
+write_csv(risk_poi ,paste0('data/risk_latest/risk_poi-',toString(Sys.Date()),'.csv'))
+write_csv(risk_community ,paste0('data/risk_latest/risk_community-',toString(Sys.Date()),'.csv'))
 print("Completed!")
