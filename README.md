@@ -47,7 +47,7 @@ Go to the folder where you clone the files:
     sh main.sh
     ```
 
-    2. You will get the following data:
+    2. You will get the following data in `data/processed`:
 
         1. **RMDS_open_hours.csv**
         2. **RMDS_poi_area_square_feet.csv**
