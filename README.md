@@ -15,7 +15,7 @@ The project structure is as follows:
 1. Clone the whole repository from GitHub
 
 2. Pre-Download data:
-A total of 7 files, 5 need to be downloaded (Example data for you soon!). **No need to unzip the file**, just download and keep it original format. Store all the data into `/data/external/` folder. (Data from SafeGraph.com Need to apply an account): 
+A total of 7 files, 5 need to be downloaded (Example data for you soon!). **No need to unzip the file**, just download and keep it original format. Store all the data into `/data/external/` folder and some data need some extra assistant, see in the below list. (Data from SafeGraph.com Need to apply an account): 
     * ** SafeGraph consecutive 3 weeks of user patterns**: There are several files for one single day, please store the data into `data/external/weekly_pattern` arrange into one subfolder for a single day. For example, for week ended on 0812, we create a folder call 0812 `data/external/weekly_pattern/0812`(1-3)
     ![weekly pattern example](data/internal/image/example.png)
     ![Weekly Places Patterns](data/internal/image/weekly.png)
@@ -31,9 +31,15 @@ A total of 7 files, 5 need to be downloaded (Example data for you soon!). **No n
         * Click `[Table: Community Testing]`, then click download (7)
         ![test_death](data/internal/image/test_death.png)
 
-3. Check necessary dependencies in `requirements.txt` 
+3. Check necessary dependencies in `requirements.txt` or use `pyproject.toml` (recommended)
 ```
+# solution1
 pip install -r requirements.txt
+
+# solution2
+pip install poetry
+poetry install
+poetry lock
 ```
 4. Run the script:
 Go to the folder where you clone the files:
@@ -43,11 +49,12 @@ Go to the folder where you clone the files:
     ```shell
     # make the file executable
     chmod 755 main.sh
-    # run the shell script
-    sh main.sh
+    # run the shell script + assign 3 weekly pattern folders you created earlier, for example:
+    sh main.sh 0812 0819 0826
     ```
 
-    2. You will get the following data in `data/processed`:
+5. Result
+    1. You will get the processed data in `data/processed`:
 
         1. **RMDS_open_hours.csv**
         2. **RMDS_poi_area_square_feet.csv**
@@ -57,10 +64,10 @@ Go to the folder where you clone the files:
         6. **LA_County_Covid19_CSA_case_death_table.csv**
         7. **LA_County_Covid19_CSA_testing_table.csv**
         
-    3. Get the risk score: Open R and edit the correct weekly pattern
+    3. You will also get the risk score result in `data/result`:
 
         ![R_script](data/internal/image/R_script_shot.png)
-        * You will get POI risk score and community risk score in `data/result` folder
+
             1. **risk_poi-YYYY-MM-DD.csv**
             2. **risk_community-YYYY-MM-DD.csv**
 
