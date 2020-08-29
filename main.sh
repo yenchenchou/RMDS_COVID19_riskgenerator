@@ -10,6 +10,11 @@ WEEK1=$1
 WEEK2=$2
 WEEK3=$3
 
+# move old LA county case/death csv and load the new
+
+
+
+
 # move the old risk score to risk_history
 if [ -f "$POI_FILE" ]; then
     echo "$POI_FILE exists. Moving files..."
