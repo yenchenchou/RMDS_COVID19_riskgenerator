@@ -17,7 +17,7 @@ The project structure is as follows:
 2. Pre-Download data:
 A total of 7 files, 5 need to be downloaded (Example data for you soon!). **No need to unzip the file**, just download and keep it original format. Store all the data into `/data/external/` folder and some data need some extra assistant, see in the below list. (Data from SafeGraph.com Need to apply an account): 
     * **SafeGraph consecutive 3 weeks of user patterns**: There are several files for one single day, please store the data into `data/external/weekly_pattern` arrange into one subfolder for a single day. For example, for week ended on 0812, we create a folder call 0812 `data/external/weekly_pattern/0812`(1-3)
-    ![weekly pattern example](data/internal/image/example.png)
+    ![weekly pattern example](data/internal/image/example2.png)
     ![Weekly Places Patterns](data/internal/image/weekly.png)
     * **SafeGraph POI (Point of Interest) data**: Core Places (US Only) (4)
     ![poi](data/internal/image/poi.png) 
