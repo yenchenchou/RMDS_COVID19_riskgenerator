@@ -65,8 +65,6 @@ Go to the folder where you clone the files:
         
     3. You will also get the risk score result in `data/result`:
 
-        ![R_script](data/internal/image/R_script_shot.png)
-
-            1. **risk_poi-YYYY-MM-DD.csv**
-            2. **risk_community-YYYY-MM-DD.csv**
+        1. **risk_poi-YYYY-MM-DD.csv**
+        2. **risk_community-YYYY-MM-DD.csv**
 
