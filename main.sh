@@ -1,3 +1,4 @@
+#!/bin/sh
 # params
 NOW=$(date +"%Y-%m-%d")
 POI_CORE_FILE="data/external/Core-USA-August2020-Release-CORE_POI"
