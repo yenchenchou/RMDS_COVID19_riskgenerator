@@ -1,40 +1,40 @@
 #!/bin/sh
 # params
 NOW=$(date +"%Y-%m-%d")
+YESTERDAY=$(date -v -1d +"%Y-%m-%d")
 POI_CORE_FILE="data/external/Core-USA-August2020-Release-CORE_POI"
 CUM_FILE=data/risk_latest/risk_community.csv
 POI_FILE=data/risk_latest/risk_poi.csv
 POI_FOLDER=data/external/Core_POI_Folder
-NEW_POI_FILE=data/risk_history/risk_poi-$NOW.csv
-NEW_CUM_FILE=data/risk_history/risk_community-$NOW.csv
+OLD_POI_FILE=data/risk_history/risk_poi-$YESTERDAY.csv
+OLD_CUM_FILE=data/risk_history/risk_community-$YESTERDAY.csv
 WEEK1=$1
 WEEK2=$2
 WEEK3=$3
 
 # move old LA county case/death csv and load the new
-
-
+echo "move old test/death data to data/archive if exist..."
+# find files modified more than 48 hours ago
+find data/external -ctime 1 -type f -name "LA_County_Covid19*" -exec mv {} data/archive/ \;
+mv data/archive/LA_County_Covid19_CSA_testing_table.csv data/archive/LA_County_Covid19_CSA_testing_table_$YESTERDAY.csv
+mv data/archive/LA_County_Covid19_CSA_case_death_table.csv data/archive/LA_County_Covid19_CSA_case_death_table_$YESTERDAY.csv
+echo "rename LA_County_Covid19_CSA_testing_table if exist..."
+mv data/external/LA_County_Covid19_CSA_testing_table\ copy.csv data/external/LA_County_Covid19_CSA_testing_table.csv
+echo "rename LA_County_Covid19_CSA_case_death_table if exist..."
+mv data/external/LA_County_Covid19_CSA_case_death_table\ copy.csv data/external/LA_County_Covid19_CSA_case_death_table.csv
 
 
 # move the old risk score to risk_history
 if [ -f "$POI_FILE" ]; then
     echo "$POI_FILE exists. Moving files..."
-    if [ -f "$NEW_POI_FILE" ]; then
-        echo "$NEW_POI_FILE exists. Skip process..."
-    else
-        mv $POI_FILE $NEW_POI_FILE
-    fi
+    mv $POI_FILE $OLD_POI_FILE
 else 
     echo "$POI_FILE does not exist or has moved. Skip process..."
 fi
 
 if [ -f "$CUM_FILE" ]; then
     echo "$CUM_FILE exists. Moving files..."
-    if [ -f "$NEW_CUM_FILE" ]; then
-        echo "$NEW_CUM_FILE exists. Skip process..."
-    else
-        mv $CUM_FILE $NEW_CUM_FILE
-    fi
+    mv $CUM_FILE $OLD_CUM_FILE
 else 
     echo "$CUM_FILE does not exist or has moved. Skip process..."
 fi
