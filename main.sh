@@ -2,7 +2,7 @@
 # params
 NOW=$(date +"%Y-%m-%d")
 YESTERDAY=$(date -v -1d +"%Y-%m-%d")
-POI_CORE_FILE="data/external/Core-USA-August2020-Release-CORE_POI"
+POI_CORE_FILE="data/external/Core-USA-September2020-Release-CORE_POI"
 CUM_FILE=data/risk_latest/risk_community.csv
 POI_FILE=data/risk_latest/risk_poi.csv
 POI_FOLDER=data/external/Core_POI_Folder
