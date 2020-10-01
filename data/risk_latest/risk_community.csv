@@ -1,174 +1,174 @@
 community,risk_score,risk_level
-Acton,0.266894312172566,1
-Agoura Hills,0.22665297982335955,1
+Acton,0,0
+Agoura Hills,0,0
 Agua Dulce,0,0
-Alhambra,0.42803074495554727,2
-Altadena,0.4276152615661968,2
-Arcadia,0.2870044763008745,1
-Artesia,0.552040826320388,3
-Atwater Village,0.42153023785753013,2
-Azusa,0.7194074729118709,4
-Baldwin Hills,0.5403524829207249,3
-Baldwin Park,0.7954219504639675,4
+Alhambra,0,0
+Altadena,0,0
+Arcadia,0,0
+Artesia,0,0
+Atwater Village,0,0
+Azusa,0,0
+Baldwin Hills,0,0
+Baldwin Park,0,0
 Bassett,0,0
 Bel Air Estates,0,0
-Bell,0.761140898487537,4
-Beverly Hills,0.37138986584350003,2
-Boyle Heights,0.8179120357843186,4
-Bradbury,0.05518224547267571,1
-Brentwood,0.26498650909683313,1
-Burbank,0.413450637526573,2
-Canoga Park,0.6305187685849722,3
-Carson,0.5418857586259925,3
-Castaic,0.8910747286524038,4
-Central,0.7185391278666543,4
-Century City,0.18609761088538873,1
-Cerritos,0.3449138279134044,2
-Chatsworth,0.5262896029342802,3
-Chinatown,0.30166611286074113,1
-Claremont,0.3393722152661827,2
-Commerce,0.8038783065834602,4
-Compton,0.7997631789996639,4
-Covina,0.6660222413476661,3
-Cudahy,0.7961132742519933,4
-Culver City,0.2619167002321508,1
+Bell,0,0
+Beverly Hills,0,0
+Boyle Heights,0,0
+Bradbury,0,0
+Brentwood,0,0
+Burbank,0,0
+Canoga Park,0,0
+Carson,0,0
+Castaic,0,0
+Central,0,0
+Century City,0,0
+Cerritos,0,0
+Chatsworth,0,0
+Chinatown,0,0
+Claremont,0,0
+Commerce,0,0
+Compton,0,0
+Covina,0,0
+Cudahy,0,0
+Culver City,0,0
 Del Sur,0,0
-Diamond Bar,0.3232287552360716,1
-Downey,0.7399841198708283,4
-Downtown,0.4703299016007594,2
+Diamond Bar,0,0
+Downey,0,0
+Downtown,0,0
 Downtown Bunker Hill,0,0
 Downtown Historic Core,0,0
-Duarte,0.57848980501975,3
-Eagle Rock,0.40931770806286005,2
-East Hollywood,0.5450043602814829,3
-East Los Angeles,0.8228221473474151,4
-Echo Park,0.4208395298292651,2
-El Monte,0.7561109086769771,4
-El Segundo,0.27805457843520437,1
-El Sereno,0.7168088786279673,4
-Encino,0.3029406832628785,1
-Florence-Firestone,0.8402648591192888,4
-Gardena,0.5870888894321238,3
-Glassell Park,0.5589995773061045,3
-Glendale,0.5061998186544757,2
-Glendora,0.6676016872045744,3
-Granada Hills,0.5313152618104363,3
-Hacienda Heights,0.5721532240799639,3
-Hancock Park,0.3550759321875687,2
-Harbor City,0.5593253067120253,3
-Harbor Gateway,0.7120114432101444,4
-Hawaiian Gardens,0.75272475292002206,4
-Hawthorne,0.5753451771954337,3
-Hermosa Beach,0.3511035770050917,2
+Duarte,0,0
+Eagle Rock,0,0
+East Hollywood,0,0
+East Los Angeles,0,0
+Echo Park,0,0
+El Monte,0,0
+El Segundo,0,0
+El Sereno,0,0
+Encino,0,0
+Florence-Firestone,0,0
+Gardena,0,0
+Glassell Park,0,0
+Glendale,0,0
+Glendora,0,0
+Granada Hills,0,0
+Hacienda Heights,0,0
+Hancock Park,0,0
+Harbor City,0,0
+Harbor Gateway,0,0
+Hawaiian Gardens,0,0
+Hawthorne,0,0
+Hermosa Beach,0,0
 Hi Vista,0,0
-Hidden Hills,0.16165228320229674,1
-Highland Park,0.5700213649666287,3
-Hollywood,0.43927724085703274,2
-Huntington Park,0.7571189979829045,4
-Hyde Park,0.6717341543429944,3
-Inglewood,0.6443784096480321,3
-Jefferson Park,0.7232543190151199,4
-Koreatown,0.6141340661772872,3
-La Habra Heights,0.512315659046064,2
-La Mirada,0.5519116604984035,3
-La Puente,0.7602461427117742,4
-La Verne,0.45939759044568573,2
+Hidden Hills,0,0
+Highland Park,0,0
+Hollywood,0,0
+Huntington Park,0,0
+Hyde Park,0,0
+Inglewood,0,0
+Jefferson Park,0,0
+Koreatown,0,0
+La Habra Heights,0,0
+La Mirada,0,0
+La Puente,0,0
+La Verne,0,0
 Ladera Heights,0,0
-Lake Balboa,0.6014585332806922,3
+Lake Balboa,0,0
 Lake Hughes,0,0
-Lake Los Angeles,0.43454017440067166,2
-Lakewood,0.41672505708143853,2
-Lancaster,0.6305278044539014,3
-Lawndale,0.5682241126752161,3
+Lake Los Angeles,0,0
+Lakewood,0,0
+Lancaster,0,0
+Lawndale,0,0
 Lennox,0,0
 Leona Valley,0,0
-Lincoln Heights,0.7197344469894036,4
+Lincoln Heights,0,0
 Llano,0,0
-Lomita,0.3294690288737371,2
-Los Feliz,0.3059435787252541,1
-Lynwood,0.821106181147034,4
-Malibu,0.26465533958690357,1
-Manhattan Beach,0.28229365371581544,1
-Mar Vista,0.2521227765281589,1
+Lomita,0,0
+Los Feliz,0,0
+Lynwood,0,0
+Malibu,0,0
+Manhattan Beach,0,0
+Mar Vista,0,0
 Marina del Rey,0,0
-Marina Peninsula,0.23752277634103636,1
-Maywood,0.7942154177955995,4
-Melrose,0.5183721309650544,3
+Marina Peninsula,0,0
+Maywood,0,0
+Melrose,0,0
 Mid-City,0,0
 missing,0,0
-Mission Hills,0.7091252273632129,4
-Monrovia,0.5827298891890531,3
-Montebello,0.7152738399933841,4
-Monterey Park,0.45927902472415777,2
-North Hills,0.7540948152362421,4
-North Hollywood,0.6341760505054332,3
-Northridge,0.5539584259912976,3
-Norwalk,0.7275209007523599,4
-Pacific Palisades,0.22382326099248273,1
-Pacoima,0.7664460363308938,4
-Palmdale,0.6863394015464007,3
-Palms,0.3808852081927482,2
-Panorama City,0.7771154781421536,4
-Paramount,0.7862469893001146,4
-Pasadena,0.48768531632137035,2
-Pico Rivera,0.7976997980354211,4
-Playa Vista,0.2591122736337853,1
-Pomona,0.7644114494757973,4
-Porter Ranch,0.3245233113302675,1
-Rancho Palos Verdes,0.28172361076676483,1
-Rancho Park,0.3064129324361825,1
-Redondo Beach,0.28987613724895867,1
-Reseda,0.618869139365757,3
-Rosemead,0.48550251151107227,2
+Mission Hills,0,0
+Monrovia,0,0
+Montebello,0,0
+Monterey Park,0,0
+North Hills,0,0
+North Hollywood,0,0
+Northridge,0,0
+Norwalk,0,0
+Pacific Palisades,0,0
+Pacoima,0,0
+Palmdale,0,0
+Palms,0,0
+Panorama City,0,0
+Paramount,0,0
+Pasadena,0,0
+Pico Rivera,0,0
+Playa Vista,0,0
+Pomona,0,0
+Porter Ranch,0,0
+Rancho Palos Verdes,0,0
+Rancho Park,0,0
+Redondo Beach,0,0
+Reseda,0,0
+Rosemead,0,0
 Rosewood,0,0
-Rowland Heights,0.39632468520036895,2
-San Dimas,0.46541177190323896,2
-San Fernando,0.599056544582085,3
-San Gabriel,0.4421818402929175,2
-San Marino,0.24199660137498372,1
-San Pedro,0.635995966952986,3
+Rowland Heights,0,0
+San Dimas,0,0
+San Fernando,0,0
+San Gabriel,0,0
+San Marino,0,0
+San Pedro,0,0
 Santa Catalina Island,0,0
-Santa Clarita,0.4817026207740362,2
-Santa Fe Springs,0.7151516358887844,4
-Santa Monica,0.24590313281230813,1
-Shadow Hills,0.4542416703337151,2
-Sherman Oaks,0.3077904899655942,1
-Sierra Madre,0.264768476164706,1
-Signal Hill,0.602877794814748,3
-South Gate,0.7890323407662598,4
+Santa Clarita,0,0
+Santa Fe Springs,0,0
+Santa Monica,0,0
+Shadow Hills,0,0
+Sherman Oaks,0,0
+Sierra Madre,0,0
+Signal Hill,0,0
+South Gate,0,0
 South Los Angeles,0,0
-South Park,0.7260961732205576,4
-South Pasadena,0.2607823189519226,1
-Stevenson Ranch,0.313217474126647,1
-Studio City,0.30086270216077626,1
-Sun Valley,0.7267998608652508,4
+South Park,0,0
+South Pasadena,0,0
+Stevenson Ranch,0,0
+Studio City,0,0
+Sun Valley,0,0
 Sun Village,0,0
-Sylmar,0.7647914287958358,4
-Tarzana,0.473550816280503,2
-Temple City,0.4222147112143404,2
-Toluca Lake,0.3070979398858742,1
-Toluca Terrace,0.46273751111151307,2
-Torrance,0.32443249454055023,1
-Tujunga,0.5836614443240823,3
-University Park,0.7985154626625047,4
+Sylmar,0,0
+Tarzana,0,0
+Temple City,0,0
+Toluca Lake,0,0
+Toluca Terrace,0,0
+Torrance,0,0
+Tujunga,0,0
+University Park,0,0
 Valencia,0,0
-Valley Glen,0.5913257535134767,3
-Valley Village,0.5231468680479263,3
-Van Nuys,0.719701485624207,4
-Venice,0.26968160685044373,1
-Vernon,0.6494671172763304,3
-Walnut,0.31272036276909043,1
-Watts,0.908373487541135,4
-West Adams,0.7005605382564285,4
-West Hills,0.39992068198756175,2
-West Hollywood,0.3513477976490753,2
-Westchester,0.2565423773870645,1
-Westlake,0.7335023572581072,4
-Westlake Village,0.2879118057647359,1
-Westwood,0.21211669674069925,1
-Whittier,0.6507901053331707,3
-Willowbrook,0.5179445647054107,3
-Wilmington,0.7656816407676086,4
-Wilshire Center,0.48120229654109786,2
-Winnetka,0.6178608941948246,3
-Woodland Hills,0.31997836857292977,1
+Valley Glen,0,0
+Valley Village,0,0
+Van Nuys,0,0
+Venice,0,0
+Vernon,0,0
+Walnut,0,0
+Watts,0,0
+West Adams,0,0
+West Hills,0,0
+West Hollywood,0,0
+Westchester,0,0
+Westlake,0,0
+Westlake Village,0,0
+Westwood,0,0
+Whittier,0,0
+Willowbrook,0,0
+Wilmington,0,0
+Wilshire Center,0,0
+Winnetka,0,0
+Woodland Hills,0,0
